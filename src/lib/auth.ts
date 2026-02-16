@@ -7,7 +7,8 @@ import bcrypt from "bcryptjs";
 import type { Adapter } from "next-auth/adapters";
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as Adapter,
+  // Only use adapter for OAuth providers, not credentials
+  // adapter: PrismaAdapter(prisma) as Adapter,
   session: { strategy: "jwt" },
   pages: {
     signIn: "/auth/login",
