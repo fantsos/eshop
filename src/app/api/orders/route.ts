@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { items, shippingAddress, paymentMethod, subtotal, shipping, codFee = 0, total, couponCode } = body;
+    const { items, shippingAddress, paymentMethod, subtotal, shipping, codFee = 0, tax = 0, discount = 0, total, couponCode } = body;
 
     if (!items?.length || !shippingAddress || !paymentMethod) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -54,8 +54,8 @@ export async function POST(req: Request) {
         status: "PENDING",
         subtotal,
         shipping,
-        tax: 0,
-        discount: 0,
+        tax,
+        discount,
         total: total,
         paymentMethod,
         paymentStatus: paymentMethod === "COD" ? "PENDING" : "PENDING",
@@ -73,6 +73,16 @@ export async function POST(req: Request) {
         },
       },
     });
+
+    // Update coupon usage
+    if (couponCode) {
+      try {
+        await prisma.coupon.update({
+          where: { code: couponCode },
+          data: { usedCount: { increment: 1 } },
+        });
+      } catch {}
+    }
 
     // Update stock
     for (const item of items) {

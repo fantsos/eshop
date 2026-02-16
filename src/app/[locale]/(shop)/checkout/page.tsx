@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { useCartStore } from "@/stores/cart-store";
 import { formatPrice } from "@/lib/utils";
 import { toast } from "@/components/ui/use-toast";
-import { Check, CreditCard, Building2, Banknote, Loader2 } from "lucide-react";
+import { Check, CreditCard, Building2, Banknote, Loader2, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -25,6 +25,20 @@ const PAYMENT_METHODS = [
   { id: "COD", icon: Banknote, labelKey: "cod" as const },
   { id: "IRIS", icon: Building2, labelKey: "iris" as const },
 ];
+
+interface ShopSettings {
+  taxRate: number;
+  freeShippingThreshold: number;
+  defaultShippingRate: number;
+  codFee: number;
+}
+
+const DEFAULT_SETTINGS: ShopSettings = {
+  taxRate: 24,
+  freeShippingThreshold: 50,
+  defaultShippingRate: 4.99,
+  codFee: 2.5,
+};
 
 export default function CheckoutPage() {
   const t = useTranslations("checkout");
@@ -40,10 +54,73 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState({ name: "", street: "", city: "", state: "", zip: "", country: "GR", phone: "" });
   const [paymentMethod, setPaymentMethod] = useState("STRIPE");
 
+  // Settings from API
+  const [settings, setSettings] = useState<ShopSettings>(DEFAULT_SETTINGS);
+
+  // Coupon state
+  const [couponCode, setCouponCode] = useState("");
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponApplying, setCouponApplying] = useState(false);
+  const [couponApplied, setCouponApplied] = useState(false);
+
+  // Load settings on mount
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const res = await fetch("/api/admin/settings");
+        if (res.ok) {
+          const data = await res.json();
+          setSettings({
+            taxRate: data.taxRate ? parseFloat(data.taxRate) : DEFAULT_SETTINGS.taxRate,
+            freeShippingThreshold: data.freeShippingThreshold ? parseFloat(data.freeShippingThreshold) : DEFAULT_SETTINGS.freeShippingThreshold,
+            defaultShippingRate: data.defaultShippingRate ? parseFloat(data.defaultShippingRate) : DEFAULT_SETTINGS.defaultShippingRate,
+            codFee: data.codFee ? parseFloat(data.codFee) : DEFAULT_SETTINGS.codFee,
+          });
+        }
+      } catch {
+        // Use default settings on error
+      }
+    };
+    loadSettings();
+  }, []);
+
   const subtotal = getTotal();
-  const codFee = paymentMethod === "COD" ? 2.5 : 0;
-  const shipping = subtotal >= 50 ? 0 : 4.99;
-  const total = subtotal + shipping + codFee;
+  const codFee = paymentMethod === "COD" ? settings.codFee : 0;
+  const shipping = subtotal >= settings.freeShippingThreshold ? 0 : settings.defaultShippingRate;
+  const tax = Math.round(subtotal * (settings.taxRate / 100) * 100) / 100;
+  const discount = couponDiscount;
+  const total = Math.round((subtotal + shipping + tax + codFee - discount) * 100) / 100;
+
+  // Apply coupon
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setCouponApplying(true);
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponCode.trim(), subtotal }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setCouponDiscount(data.discount);
+        setCouponApplied(true);
+        toast({ title: tc("success"), description: `${tc("discount")}: -${formatPrice(data.discount, locale)}` });
+      } else {
+        toast({ title: tc("error"), description: data.error, variant: "destructive" });
+      }
+    } catch {
+      toast({ title: tc("error"), variant: "destructive" });
+    }
+    setCouponApplying(false);
+  };
+
+  // Remove coupon
+  const handleRemoveCoupon = () => {
+    setCouponCode("");
+    setCouponDiscount(0);
+    setCouponApplied(false);
+  };
 
   if (status === "unauthenticated") { router.push(`${prefix}/auth/login?callbackUrl=${encodeURIComponent(pathname)}`); return null; }
   if (items.length === 0) return (<div className="container py-16 text-center"><h1 className="text-2xl font-bold mb-4">{t("title")}</h1><Link href={`${prefix}/products`}><Button>{tc("continueShopping")}</Button></Link></div>);
@@ -51,7 +128,22 @@ export default function CheckoutPage() {
   const handlePlaceOrder = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items: items.map(i => ({ productId: i.productId, variantId: i.variantId, quantity: i.quantity, price: i.price, name: i.name })), shippingAddress: address, paymentMethod, subtotal, shipping, codFee, total }) });
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map(i => ({ productId: i.productId, variantId: i.variantId, quantity: i.quantity, price: i.price, name: i.name })),
+          shippingAddress: address,
+          paymentMethod,
+          subtotal,
+          shipping,
+          tax,
+          discount,
+          couponCode: couponApplied ? couponCode.trim() : undefined,
+          codFee,
+          total,
+        }),
+      });
       if (res.ok) { const data = await res.json(); clearCart(); router.push(`${prefix}/orders/${data.orderNumber}?success=true`); }
       else { const data = await res.json(); toast({ title: tc("error"), description: data.error, variant: "destructive" }); }
     } catch { toast({ title: tc("error"), variant: "destructive" }); }
@@ -96,7 +188,7 @@ export default function CheckoutPage() {
               {PAYMENT_METHODS.map(pm => (
                 <button key={pm.id} onClick={() => setPaymentMethod(pm.id)} className={`flex items-center gap-3 w-full p-4 rounded-lg border transition-colors ${paymentMethod === pm.id ? "border-primary bg-primary/5" : "hover:bg-muted"}`}>
                   <pm.icon className="h-5 w-5" /><span className="font-medium">{t(pm.labelKey)}</span>
-                  {pm.id === "COD" && <Badge variant="outline" className="ml-auto">+&euro;2.50</Badge>}
+                  {pm.id === "COD" && <Badge variant="outline" className="ml-auto">+{formatPrice(settings.codFee, locale)}</Badge>}
                 </button>
               ))}
               {paymentMethod === "BANK_TRANSFER" && <p className="text-sm text-muted-foreground p-3 bg-muted rounded">{t("bankTransferInfo")}</p>}
@@ -116,11 +208,50 @@ export default function CheckoutPage() {
             </CardContent></Card>
           )}
         </div>
-        <Card className="h-fit"><CardHeader><CardTitle>{locale === "en" ? "Order Summary" : "Σύνοψη"}</CardTitle></CardHeader><CardContent className="space-y-3">
+        <Card className="h-fit"><CardHeader><CardTitle>{locale === "en" ? "Order Summary" : "\u03a3\u03cd\u03bd\u03bf\u03c8\u03b7"}</CardTitle></CardHeader><CardContent className="space-y-3">
           <div className="flex justify-between text-sm"><span>{tc("subtotal")}</span><span>{formatPrice(subtotal, locale)}</span></div>
           <div className="flex justify-between text-sm"><span>{tc("shipping")}</span><span>{shipping === 0 ? tc("freeShipping") : formatPrice(shipping, locale)}</span></div>
+          <div className="flex justify-between text-sm"><span>{tc("tax")} ({settings.taxRate}%)</span><span>{formatPrice(tax, locale)}</span></div>
+          {discount > 0 && (
+            <div className="flex justify-between text-sm text-green-600"><span>{tc("discount")}</span><span>-{formatPrice(discount, locale)}</span></div>
+          )}
           {codFee > 0 && <div className="flex justify-between text-sm"><span>{t("codFee")}</span><span>{formatPrice(codFee, locale)}</span></div>}
-          <Separator /><div className="flex justify-between font-bold"><span>{tc("total")}</span><span>{formatPrice(total, locale)}</span></div>
+          <Separator />
+          <div className="flex justify-between font-bold"><span>{tc("total")}</span><span>{formatPrice(total, locale)}</span></div>
+          <Separator />
+          {/* Coupon code input */}
+          <div className="space-y-2">
+            <Label className="text-sm">{tc("couponCode")}</Label>
+            {couponApplied ? (
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="flex-1 justify-between py-1.5">
+                  <span>{couponCode}</span>
+                  <button onClick={handleRemoveCoupon} className="ml-2 hover:text-destructive">
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Input
+                  placeholder={tc("couponCode")}
+                  value={couponCode}
+                  onChange={e => setCouponCode(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter") handleApplyCoupon(); }}
+                  className="text-sm"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleApplyCoupon}
+                  disabled={couponApplying || !couponCode.trim()}
+                  className="shrink-0"
+                >
+                  {couponApplying ? <Loader2 className="h-4 w-4 animate-spin" /> : tc("applyCoupon")}
+                </Button>
+              </div>
+            )}
+          </div>
         </CardContent></Card>
       </div>
     </div>

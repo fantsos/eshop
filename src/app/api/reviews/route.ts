@@ -31,6 +31,7 @@ export async function POST(req: Request) {
         rating: data.rating,
         title: data.title,
         comment: data.comment,
+        images: body.images || [],
         isVerified: !!hasOrdered,
       },
     });

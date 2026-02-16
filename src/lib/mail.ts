@@ -57,6 +57,22 @@ export function orderStatusEmail(orderNumber: string, status: string, trackingNu
   };
 }
 
+export function verificationEmail(token: string, locale: string) {
+  const isGreek = locale === "el";
+  const url = `${process.env.NEXTAUTH_URL}/auth/verify-email?token=${token}`;
+  return {
+    subject: isGreek ? "Επαλήθευση Email" : "Verify Your Email",
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #1a1a1a;">${isGreek ? "Επαλήθευση Email" : "Verify Your Email"}</h1>
+        <p>${isGreek ? "Πατήστε τον παρακάτω σύνδεσμο για να επαληθεύσετε το email σας:" : "Click the link below to verify your email address:"}</p>
+        <a href="${url}" style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 16px 0;">${isGreek ? "Επαλήθευση Email" : "Verify Email"}</a>
+        <p style="color: #666; font-size: 14px;">${isGreek ? "Ο σύνδεσμος λήγει σε 24 ώρες." : "This link expires in 24 hours."}</p>
+      </div>
+    `,
+  };
+}
+
 export function orderConfirmationEmail(orderNumber: string, total: string, locale: string) {
   const isGreek = locale === "el";
   return {

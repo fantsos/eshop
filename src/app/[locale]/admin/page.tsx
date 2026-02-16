@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DollarSign, Package, ShoppingCart, Users } from "lucide-react";
+import DashboardCharts from "@/components/admin/dashboard-charts";
 
 export default async function AdminDashboard() {
   const [totalOrders, totalRevenue, totalUsers, totalProducts, recentOrders, lowStockProducts] = await Promise.all([
@@ -28,6 +29,7 @@ export default async function AdminDashboard() {
           <Card key={stat.title}><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle><stat.icon className="h-4 w-4 text-muted-foreground" /></CardHeader><CardContent><div className="text-2xl font-bold">{stat.value}</div></CardContent></Card>
         ))}
       </div>
+      <DashboardCharts />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <Card><CardHeader><CardTitle>Recent Orders</CardTitle></CardHeader><CardContent><div className="space-y-3">
           {recentOrders.map((order) => (<div key={order.id} className="flex items-center justify-between border-b pb-2 last:border-0"><div><p className="font-medium text-sm">#{order.orderNumber}</p><p className="text-xs text-muted-foreground">{order.user.name || order.user.email}</p></div><div className="text-right"><Badge>{order.status}</Badge><p className="text-sm font-medium">€{Number(order.total).toFixed(2)}</p></div></div>))}

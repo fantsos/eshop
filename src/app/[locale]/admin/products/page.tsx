@@ -4,7 +4,8 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Download, Upload } from "lucide-react";
+import { Plus, Edit, Download } from "lucide-react";
+import ImportButton from "@/components/admin/import-button";
 
 export default async function AdminProductsPage({ params: { locale }, searchParams }: { params: { locale: string }; searchParams: { page?: string } }) {
   const prefix = locale === "en" ? "/en" : "";
@@ -19,6 +20,7 @@ export default async function AdminProductsPage({ params: { locale }, searchPara
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Products ({total})</h1>
         <div className="flex gap-2">
+          <ImportButton />
           <a href="/api/admin/products/export"><Button variant="outline"><Download className="h-4 w-4 mr-2" /> Export CSV</Button></a>
           <Link href={`${prefix}/admin/products/new`}><Button><Plus className="h-4 w-4 mr-2" /> Add Product</Button></Link>
         </div>
