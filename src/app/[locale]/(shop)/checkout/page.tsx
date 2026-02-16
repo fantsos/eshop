@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -16,6 +16,9 @@ import { toast } from "@/components/ui/use-toast";
 import { Check, CreditCard, Building2, Banknote, Loader2, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+
+const StripeCardForm = lazy(() => import("@/components/checkout/stripe-card-form"));
+const PayPalButton = lazy(() => import("@/components/checkout/paypal-button"));
 
 type Step = "address" | "payment" | "review";
 const PAYMENT_METHODS = [
@@ -52,6 +55,7 @@ export default function CheckoutPage() {
   const [step, setStep] = useState<Step>("address");
   const [loading, setLoading] = useState(false);
   const [address, setAddress] = useState({ name: "", street: "", city: "", state: "", zip: "", country: "GR", phone: "" });
+  const [guestEmail, setGuestEmail] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("STRIPE");
 
   // Settings from API
@@ -65,23 +69,17 @@ export default function CheckoutPage() {
 
   // Load settings on mount
   useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const res = await fetch("/api/admin/settings");
-        if (res.ok) {
-          const data = await res.json();
-          setSettings({
-            taxRate: data.taxRate ? parseFloat(data.taxRate) : DEFAULT_SETTINGS.taxRate,
-            freeShippingThreshold: data.freeShippingThreshold ? parseFloat(data.freeShippingThreshold) : DEFAULT_SETTINGS.freeShippingThreshold,
-            defaultShippingRate: data.defaultShippingRate ? parseFloat(data.defaultShippingRate) : DEFAULT_SETTINGS.defaultShippingRate,
-            codFee: data.codFee ? parseFloat(data.codFee) : DEFAULT_SETTINGS.codFee,
-          });
-        }
-      } catch {
-        // Use default settings on error
-      }
-    };
-    loadSettings();
+    fetch("/api/admin/settings")
+      .then(res => res.ok ? res.json() : {})
+      .then((data: Record<string, string>) => {
+        setSettings({
+          taxRate: data.taxRate ? parseFloat(data.taxRate) : DEFAULT_SETTINGS.taxRate,
+          freeShippingThreshold: data.freeShippingThreshold ? parseFloat(data.freeShippingThreshold) : DEFAULT_SETTINGS.freeShippingThreshold,
+          defaultShippingRate: data.defaultShippingRate ? parseFloat(data.defaultShippingRate) : DEFAULT_SETTINGS.defaultShippingRate,
+          codFee: data.codFee ? parseFloat(data.codFee) : DEFAULT_SETTINGS.codFee,
+        });
+      })
+      .catch(() => {});
   }, []);
 
   const subtotal = getTotal();
@@ -91,7 +89,6 @@ export default function CheckoutPage() {
   const discount = couponDiscount;
   const total = Math.round((subtotal + shipping + tax + codFee - discount) * 100) / 100;
 
-  // Apply coupon
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
     setCouponApplying(true);
@@ -115,17 +112,19 @@ export default function CheckoutPage() {
     setCouponApplying(false);
   };
 
-  // Remove coupon
   const handleRemoveCoupon = () => {
     setCouponCode("");
     setCouponDiscount(0);
     setCouponApplied(false);
   };
 
-  if (status === "unauthenticated") { router.push(`${prefix}/auth/login?callbackUrl=${encodeURIComponent(pathname)}`); return null; }
+  // Allow guest checkout - don't redirect
+  if (status === "loading") return <div className="container py-16 text-center"><Loader2 className="h-8 w-8 animate-spin mx-auto" /></div>;
   if (items.length === 0) return (<div className="container py-16 text-center"><h1 className="text-2xl font-bold mb-4">{t("title")}</h1><Link href={`${prefix}/products`}><Button>{tc("continueShopping")}</Button></Link></div>);
 
-  const handlePlaceOrder = async () => {
+  const isGuest = status === "unauthenticated";
+
+  const placeOrder = async (paymentId?: string) => {
     setLoading(true);
     try {
       const res = await fetch("/api/orders", {
@@ -142,12 +141,22 @@ export default function CheckoutPage() {
           couponCode: couponApplied ? couponCode.trim() : undefined,
           codFee,
           total,
+          paymentId,
+          guestEmail: isGuest ? guestEmail : undefined,
         }),
       });
       if (res.ok) { const data = await res.json(); clearCart(); router.push(`${prefix}/orders/${data.orderNumber}?success=true`); }
       else { const data = await res.json(); toast({ title: tc("error"), description: data.error, variant: "destructive" }); }
     } catch { toast({ title: tc("error"), variant: "destructive" }); }
     setLoading(false);
+  };
+
+  const handlePlaceOrder = async () => {
+    if (paymentMethod === "STRIPE" || paymentMethod === "PAYPAL") {
+      // Payment handled by components, they call placeOrder on success
+      return;
+    }
+    await placeOrder();
   };
 
   const steps: Step[] = ["address", "payment", "review"];
@@ -161,8 +170,8 @@ export default function CheckoutPage() {
             <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${step === s ? "bg-primary text-primary-foreground" : steps.indexOf(step) > i ? "bg-green-500 text-white" : "bg-muted text-muted-foreground"}`}>
               {steps.indexOf(step) > i ? <Check className="h-4 w-4" /> : i + 1}
             </div>
-            <span className={`text-sm ${step === s ? "font-bold" : "text-muted-foreground"}`}>{t(`step${i + 1}` as any)}</span>
-            {i < 2 && <div className="w-12 h-px bg-border" />}
+            <span className={`text-sm hidden sm:inline ${step === s ? "font-bold" : "text-muted-foreground"}`}>{t(`step${i + 1}` as any)}</span>
+            {i < 2 && <div className="w-8 sm:w-12 h-px bg-border" />}
           </div>
         ))}
       </div>
@@ -170,6 +179,20 @@ export default function CheckoutPage() {
         <div className="lg:col-span-2">
           {step === "address" && (
             <Card><CardHeader><CardTitle>{t("shippingAddress")}</CardTitle></CardHeader><CardContent className="space-y-4">
+              {isGuest && (
+                <div className="space-y-2 p-3 bg-muted rounded-lg">
+                  <p className="text-sm text-muted-foreground">{locale === "en" ? "Checking out as guest" : "Αγορά ως επισκέπτης"}</p>
+                  <div className="space-y-2">
+                    <Label>Email</Label>
+                    <Input type="email" value={guestEmail} onChange={e => setGuestEmail(e.target.value)} placeholder="email@example.com" required />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    <Link href={`${prefix}/auth/login?callbackUrl=${encodeURIComponent(pathname)}`} className="text-primary hover:underline">
+                      {locale === "en" ? "Sign in for a better experience" : "Συνδεθείτε για καλύτερη εμπειρία"}
+                    </Link>
+                  </p>
+                </div>
+              )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2"><Label>{t("fullName")}</Label><Input value={address.name} onChange={e => setAddress({...address, name: e.target.value})} required /></div>
                 <div className="space-y-2"><Label>{tc("phone")}</Label><Input value={address.phone} onChange={e => setAddress({...address, phone: e.target.value})} /></div>
@@ -180,7 +203,11 @@ export default function CheckoutPage() {
                 <div className="space-y-2"><Label>{t("state")}</Label><Input value={address.state} onChange={e => setAddress({...address, state: e.target.value})} /></div>
                 <div className="space-y-2"><Label>{t("zip")}</Label><Input value={address.zip} onChange={e => setAddress({...address, zip: e.target.value})} required /></div>
               </div>
-              <Button onClick={() => { if (!address.name || !address.street || !address.city || !address.zip) { toast({ title: tc("error"), description: "Fill all required fields", variant: "destructive" }); return; } setStep("payment"); }}>{tc("next")}</Button>
+              <Button onClick={() => {
+                if (!address.name || !address.street || !address.city || !address.zip) { toast({ title: tc("error"), description: "Fill all required fields", variant: "destructive" }); return; }
+                if (isGuest && !guestEmail) { toast({ title: tc("error"), description: "Email is required", variant: "destructive" }); return; }
+                setStep("payment");
+              }}>{tc("next")}</Button>
             </CardContent></Card>
           )}
           {step === "payment" && (
@@ -204,11 +231,44 @@ export default function CheckoutPage() {
               <div><h3 className="font-medium mb-2">{tc("products")}</h3>
                 {items.map(item => (<div key={`${item.productId}-${item.variantId || ""}`} className="flex items-center gap-3 py-2"><div className="relative h-12 w-12 rounded bg-muted overflow-hidden"><Image src={item.image || "/uploads/placeholder.png"} alt={item.name} fill className="object-cover" /></div><div className="flex-1"><p className="text-sm font-medium">{item.name}</p><p className="text-xs text-muted-foreground">x{item.quantity}</p></div><p className="font-medium">{formatPrice(item.price * item.quantity, locale)}</p></div>))}
               </div>
-              <div className="flex gap-2 mt-4"><Button variant="outline" onClick={() => setStep("payment")}>{tc("back")}</Button><Button onClick={handlePlaceOrder} disabled={loading} className="flex-1">{loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{t("placeOrder")}</Button></div>
+              <Separator />
+              {/* Stripe card form */}
+              {paymentMethod === "STRIPE" && (
+                <div className="space-y-2">
+                  <h3 className="font-medium">{t("creditCard")}</h3>
+                  <Suspense fallback={<Loader2 className="h-5 w-5 animate-spin" />}>
+                    <StripeCardForm
+                      amount={total}
+                      onSuccess={(paymentId) => placeOrder(paymentId)}
+                      onError={(msg) => toast({ title: tc("error"), description: msg, variant: "destructive" })}
+                    />
+                  </Suspense>
+                </div>
+              )}
+              {/* PayPal button */}
+              {paymentMethod === "PAYPAL" && (
+                <div className="space-y-2">
+                  <h3 className="font-medium">PayPal</h3>
+                  <Suspense fallback={<Loader2 className="h-5 w-5 animate-spin" />}>
+                    <PayPalButton
+                      amount={total}
+                      onSuccess={(paymentId) => placeOrder(paymentId)}
+                      onError={(msg) => toast({ title: tc("error"), description: msg, variant: "destructive" })}
+                    />
+                  </Suspense>
+                </div>
+              )}
+              {/* Other payment methods */}
+              {paymentMethod !== "STRIPE" && paymentMethod !== "PAYPAL" && (
+                <div className="flex gap-2 mt-4"><Button variant="outline" onClick={() => setStep("payment")}>{tc("back")}</Button><Button onClick={handlePlaceOrder} disabled={loading} className="flex-1">{loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{t("placeOrder")}</Button></div>
+              )}
+              {(paymentMethod === "STRIPE" || paymentMethod === "PAYPAL") && (
+                <Button variant="outline" onClick={() => setStep("payment")} className="mt-2">{tc("back")}</Button>
+              )}
             </CardContent></Card>
           )}
         </div>
-        <Card className="h-fit"><CardHeader><CardTitle>{locale === "en" ? "Order Summary" : "\u03a3\u03cd\u03bd\u03bf\u03c8\u03b7"}</CardTitle></CardHeader><CardContent className="space-y-3">
+        <Card className="h-fit"><CardHeader><CardTitle>{locale === "en" ? "Order Summary" : "Σύνοψη"}</CardTitle></CardHeader><CardContent className="space-y-3">
           <div className="flex justify-between text-sm"><span>{tc("subtotal")}</span><span>{formatPrice(subtotal, locale)}</span></div>
           <div className="flex justify-between text-sm"><span>{tc("shipping")}</span><span>{shipping === 0 ? tc("freeShipping") : formatPrice(shipping, locale)}</span></div>
           <div className="flex justify-between text-sm"><span>{tc("tax")} ({settings.taxRate}%)</span><span>{formatPrice(tax, locale)}</span></div>
@@ -219,34 +279,19 @@ export default function CheckoutPage() {
           <Separator />
           <div className="flex justify-between font-bold"><span>{tc("total")}</span><span>{formatPrice(total, locale)}</span></div>
           <Separator />
-          {/* Coupon code input */}
           <div className="space-y-2">
             <Label className="text-sm">{tc("couponCode")}</Label>
             {couponApplied ? (
               <div className="flex items-center gap-2">
                 <Badge variant="secondary" className="flex-1 justify-between py-1.5">
                   <span>{couponCode}</span>
-                  <button onClick={handleRemoveCoupon} className="ml-2 hover:text-destructive">
-                    <X className="h-3 w-3" />
-                  </button>
+                  <button onClick={handleRemoveCoupon} className="ml-2 hover:text-destructive"><X className="h-3 w-3" /></button>
                 </Badge>
               </div>
             ) : (
               <div className="flex gap-2">
-                <Input
-                  placeholder={tc("couponCode")}
-                  value={couponCode}
-                  onChange={e => setCouponCode(e.target.value)}
-                  onKeyDown={e => { if (e.key === "Enter") handleApplyCoupon(); }}
-                  className="text-sm"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleApplyCoupon}
-                  disabled={couponApplying || !couponCode.trim()}
-                  className="shrink-0"
-                >
+                <Input placeholder={tc("couponCode")} value={couponCode} onChange={e => setCouponCode(e.target.value)} onKeyDown={e => { if (e.key === "Enter") handleApplyCoupon(); }} className="text-sm" />
+                <Button variant="outline" size="sm" onClick={handleApplyCoupon} disabled={couponApplying || !couponCode.trim()} className="shrink-0">
                   {couponApplying ? <Loader2 className="h-4 w-4 animate-spin" /> : tc("applyCoupon")}
                 </Button>
               </div>

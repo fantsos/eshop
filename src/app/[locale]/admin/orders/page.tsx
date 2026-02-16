@@ -30,7 +30,7 @@ export default async function AdminOrdersPage({ params: { locale }, searchParams
           <tbody>{orders.map(order => (
             <tr key={order.id} className="border-b hover:bg-muted/50">
               <td className="p-3 text-sm font-medium">#{order.orderNumber}</td>
-              <td className="p-3 text-sm">{order.user.name || order.user.email}</td>
+              <td className="p-3 text-sm">{order.user?.name || order.user?.email || order.guestEmail || "Guest"}</td>
               <td className="p-3 text-sm font-medium">€{Number(order.total).toFixed(2)}</td>
               <td className="p-3"><Badge variant={order.paymentStatus === "PAID" ? "success" as any : "outline"}>{order.paymentStatus}</Badge></td>
               <td className="p-3"><Badge>{order.status}</Badge></td>

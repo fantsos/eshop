@@ -19,8 +19,8 @@ export async function GET() {
   const rows = orders.map((o) => [
     o.orderNumber,
     new Date(o.createdAt).toISOString().split("T")[0],
-    `"${(o.user.name || "").replace(/"/g, '""')}"`,
-    o.user.email,
+    `"${(o.user?.name || "").replace(/"/g, '""')}"`,
+    o.user?.email || o.guestEmail || "",
     o.status,
     o.paymentMethod,
     o.paymentStatus,

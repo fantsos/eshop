@@ -72,7 +72,7 @@ td { padding: 10px; border-bottom: 1px solid #e5e7eb; }
   </div>
   <div class="address-block">
     <h3>Customer</h3>
-    <p>${order.user.name || ""}<br>${order.user.email}</p>
+    <p>${order.user?.name || ""}<br>${order.user?.email || order.guestEmail || ""}</p>
   </div>
 </div>
 

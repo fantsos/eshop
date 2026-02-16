@@ -20,9 +20,10 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     });
 
     // Send email notification on status change
-    if (body.status && order.user.email) {
+    const recipientEmail = order.user?.email || order.guestEmail;
+    if (body.status && recipientEmail) {
       const email = orderStatusEmail(order.orderNumber, body.status, order.trackingNumber, "el");
-      sendMail({ to: order.user.email, ...email }).catch(console.error);
+      sendMail({ to: recipientEmail, ...email }).catch(console.error);
     }
 
     return NextResponse.json(order);

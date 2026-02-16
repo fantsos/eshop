@@ -213,7 +213,7 @@ model Wishlist {
 
 model Address {
   id        String  @id @default(cuid())
-  userId    String
+  userId    String?
   name      String
   street    String
   city      String
@@ -223,14 +223,14 @@ model Address {
   phone     String?
   isDefault Boolean @default(false)
 
-  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
   shippingOrders Order[] @relation("ShippingAddress")
   billingOrders  Order[] @relation("BillingAddress")
 }
 
 model Order {
   id            String        @id @default(cuid())
-  userId        String
+  userId        String?
   orderNumber   String        @unique
   status        OrderStatus   @default(PENDING)
   subtotal      Decimal       @db.Decimal(10, 2)
@@ -244,13 +244,14 @@ model Order {
   trackingNumber String?
   notes         String?       @db.Text
   couponCode    String?
+  guestEmail    String?
 
   shippingAddressId String?
   billingAddressId  String?
   shippingAddress   Address? @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
   billingAddress    Address? @relation("BillingAddress", fields: [billingAddressId], references: [id])
 
-  user  User        @relation(fields: [userId], references: [id])
+  user  User?       @relation(fields: [userId], references: [id])
   items OrderItem[]
 
   createdAt DateTime @default(now())

@@ -32,7 +32,7 @@ export default async function AdminDashboard() {
       <DashboardCharts />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <Card><CardHeader><CardTitle>Recent Orders</CardTitle></CardHeader><CardContent><div className="space-y-3">
-          {recentOrders.map((order) => (<div key={order.id} className="flex items-center justify-between border-b pb-2 last:border-0"><div><p className="font-medium text-sm">#{order.orderNumber}</p><p className="text-xs text-muted-foreground">{order.user.name || order.user.email}</p></div><div className="text-right"><Badge>{order.status}</Badge><p className="text-sm font-medium">€{Number(order.total).toFixed(2)}</p></div></div>))}
+          {recentOrders.map((order) => (<div key={order.id} className="flex items-center justify-between border-b pb-2 last:border-0"><div><p className="font-medium text-sm">#{order.orderNumber}</p><p className="text-xs text-muted-foreground">{order.user?.name || order.user?.email || "Guest"}</p></div><div className="text-right"><Badge>{order.status}</Badge><p className="text-sm font-medium">€{Number(order.total).toFixed(2)}</p></div></div>))}
           {recentOrders.length === 0 && <p className="text-muted-foreground text-sm">No orders yet</p>}
         </div></CardContent></Card>
         <Card><CardHeader><CardTitle>Low Stock Alert</CardTitle></CardHeader><CardContent><div className="space-y-3">

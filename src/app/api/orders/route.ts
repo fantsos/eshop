@@ -20,20 +20,26 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const body = await req.json();
+  const { items, shippingAddress, paymentMethod, subtotal, shipping, codFee = 0, tax = 0, discount = 0, total, couponCode, paymentId, guestEmail } = body;
+
+  // Allow guest checkout or authenticated users
+  const userId = session?.user?.id;
+  const email = session?.user?.email || guestEmail;
+
+  if (!items?.length || !shippingAddress || !paymentMethod) {
+    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  }
+
+  if (!userId && !guestEmail) {
+    return NextResponse.json({ error: "Email is required for guest checkout" }, { status: 400 });
+  }
 
   try {
-    const body = await req.json();
-    const { items, shippingAddress, paymentMethod, subtotal, shipping, codFee = 0, tax = 0, discount = 0, total, couponCode } = body;
-
-    if (!items?.length || !shippingAddress || !paymentMethod) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-    }
-
-    // Create address
+    // Create address (linked to user if logged in)
     const address = await prisma.address.create({
       data: {
-        userId: session.user.id,
+        ...(userId ? { userId } : {}),
         name: shippingAddress.name,
         street: shippingAddress.street,
         city: shippingAddress.city,
@@ -46,19 +52,27 @@ export async function POST(req: Request) {
 
     const orderNumber = generateOrderNumber();
 
+    // Determine payment status
+    let paymentStatus: "PENDING" | "PAID" = "PENDING";
+    if (paymentId && (paymentMethod === "STRIPE" || paymentMethod === "PAYPAL")) {
+      paymentStatus = "PAID";
+    }
+
     // Create order
     const order = await prisma.order.create({
       data: {
-        userId: session.user.id,
+        ...(userId ? { userId } : {}),
         orderNumber,
-        status: "PENDING",
+        status: paymentStatus === "PAID" ? "CONFIRMED" : "PENDING",
         subtotal,
         shipping,
         tax,
         discount,
-        total: total,
+        total,
         paymentMethod,
-        paymentStatus: paymentMethod === "COD" ? "PENDING" : "PENDING",
+        paymentStatus,
+        paymentId: paymentId || null,
+        guestEmail: !userId ? guestEmail : null,
         shippingAddressId: address.id,
         billingAddressId: address.id,
         couponCode: couponCode || null,
@@ -97,9 +111,9 @@ export async function POST(req: Request) {
 
     // Send confirmation email
     try {
-      const emailContent = orderConfirmationEmail(orderNumber, `€${total.toFixed(2)}`, "el");
-      if (session.user.email) {
-        await sendMail({ to: session.user.email, ...emailContent });
+      if (email) {
+        const emailContent = orderConfirmationEmail(orderNumber, `€${total.toFixed(2)}`, "el");
+        await sendMail({ to: email, ...emailContent });
       }
     } catch (e) {
       console.error("Email send failed:", e);

@@ -14,7 +14,7 @@ export default async function AdminOrderDetailPage({ params: { id } }: { params:
       <div className="flex items-center justify-between mb-6"><h1 className="text-3xl font-bold">Order #{order.orderNumber}</h1><Badge>{order.status}</Badge></div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card><CardHeader><CardTitle>Order Info</CardTitle></CardHeader><CardContent className="space-y-2 text-sm">
-          <p><strong>Customer:</strong> {order.user.name || order.user.email}</p>
+          <p><strong>Customer:</strong> {order.user?.name || order.user?.email || order.guestEmail || "Guest"}</p>
           <p><strong>Date:</strong> {new Date(order.createdAt).toLocaleString()}</p>
           <p><strong>Payment:</strong> {order.paymentMethod} - <Badge variant={order.paymentStatus === "PAID" ? "success" as any : "outline"}>{order.paymentStatus}</Badge></p>
         </CardContent></Card>
