@@ -100,10 +100,10 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
           )}
           <div className="absolute bottom-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button size="icon" variant="secondary" className="h-8 w-8" onClick={handleToggleWishlist}>
+            <Button size="icon" variant="secondary" className="h-8 w-8" onClick={handleToggleWishlist} aria-label={inWishlist ? t("removeFromWishlist") : t("addToWishlist")}>
               <Heart className={`h-4 w-4 ${inWishlist ? "fill-red-500 text-red-500" : ""}`} />
             </Button>
-            <Button size="icon" variant="secondary" className="h-8 w-8" onClick={handleAddToCart} disabled={product.stock <= 0}>
+            <Button size="icon" variant="secondary" className="h-8 w-8" onClick={handleAddToCart} disabled={product.stock <= 0} aria-label={t("addToCart")}>
               <ShoppingCart className="h-4 w-4" />
             </Button>
           </div>

@@ -53,7 +53,11 @@ export function Header() {
     } else {
       segments.splice(1, 0, "en");
     }
-    router.push(segments.join("/") || "/");
+    const newPath = segments.join("/") || "/";
+    // Update locale cookie so middleware picks up the new locale
+    document.cookie = `NEXT_LOCALE=${switchLocale}; path=/; max-age=31536000; samesite=lax`;
+    // Full reload to ensure middleware runs and locale is applied
+    window.location.href = newPath;
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -69,7 +73,7 @@ export function Header() {
       {/* Top bar */}
       <div className="bg-primary text-primary-foreground">
         <div className="container flex h-8 items-center justify-between text-xs">
-          <span>{t("freeShipping")} - orders over 50&euro;</span>
+          <span>{t("freeShipping")} - {t("freeShippingOver")}</span>
           <button onClick={handleLocaleSwitch} className="flex items-center gap-1 hover:underline">
             <Globe className="h-3 w-3" />
             {currentLocale === "el" ? t("english") : t("greek")}
@@ -84,6 +88,7 @@ export function Header() {
           variant="ghost"
           size="icon"
           className="md:hidden"
+          aria-label={t("toggleMenu")}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -129,7 +134,7 @@ export function Header() {
         {/* Actions */}
         <div className="flex items-center gap-2 ml-auto">
           <Link href={currentLocale === "en" ? "/en/wishlist" : "/wishlist"}>
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative" aria-label={t("viewWishlist")}>
               <Heart className="h-5 w-5" />
               {wishlistCount > 0 && (
                 <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px]">
@@ -140,7 +145,7 @@ export function Header() {
           </Link>
 
           <Link href={currentLocale === "en" ? "/en/cart" : "/cart"}>
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative" aria-label={t("viewCart")}>
               <ShoppingCart className="h-5 w-5" />
               {cartItemCount > 0 && (
                 <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px]">
@@ -153,7 +158,7 @@ export function Header() {
           {session ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" aria-label={t("accountMenu")}>
                   <User className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>

@@ -26,6 +26,7 @@ services:
       - NODE_ENV=production
     volumes:
       - eshop-uploads:/app/public/uploads
+      - ./public/products:/app/public/products
     depends_on:
       eshop-db:
         condition: service_healthy

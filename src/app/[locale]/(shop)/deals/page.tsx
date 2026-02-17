@@ -1,5 +1,12 @@
+import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/product/product-card";
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+  const t = await getTranslations("common");
+  return { title: t("meta.dealsTitle"), description: t("meta.dealsDescription") };
+}
 
 function serializeProduct(p: any) {
   return {
@@ -12,7 +19,8 @@ function serializeProduct(p: any) {
   };
 }
 
-export default async function DealsPage() {
+export default async function DealsPage({ params: { locale } }: { params: { locale: string } }) {
+  const t = await getTranslations("common");
   const now = new Date();
 
   // Get flash sale products
@@ -44,8 +52,8 @@ export default async function DealsPage() {
       {flashProducts.length > 0 && (
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
-            <h2 className="text-2xl font-bold text-red-600">Flash Sale</h2>
-            <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium">Limited Time</span>
+            <h2 className="text-2xl font-bold text-red-600">{t("flashSale")}</h2>
+            <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium">{t("limitedTime")}</span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {flashProducts.map(p => (
@@ -56,9 +64,9 @@ export default async function DealsPage() {
       )}
 
       <section>
-        <h2 className="text-2xl font-bold mb-6">On Sale</h2>
+        <h2 className="text-2xl font-bold mb-6">{t("onSale")}</h2>
         {saleProducts.length === 0 && flashProducts.length === 0 ? (
-          <p className="text-center text-muted-foreground py-12">No deals available right now. Check back soon!</p>
+          <p className="text-center text-muted-foreground py-12">{t("noDeals")}</p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {saleProducts.map(p => (

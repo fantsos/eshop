@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -8,6 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string; orderNumber: string } }): Promise<Metadata> {
+  const t = await getTranslations("common");
+  return { title: t("meta.ordersTitle"), description: t("meta.ordersDescription") };
+}
 
 export default async function OrderDetailPage({ params: { locale, orderNumber }, searchParams }: { params: { locale: string; orderNumber: string }; searchParams: { success?: string } }) {
   const session = await getServerSession(authOptions);

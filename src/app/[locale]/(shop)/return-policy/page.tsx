@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { Card, CardContent } from "@/components/ui/card";
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+  const t = await getTranslations("common");
+  return { title: t("meta.returnTitle"), description: t("meta.returnDescription") };
+}
 
 export default function ReturnPolicyPage({ params: { locale } }: { params: { locale: string } }) {
   const isEn = locale === "en";

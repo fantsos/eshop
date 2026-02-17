@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
@@ -6,6 +7,14 @@ import { ProductCard } from "@/components/product/product-card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Truck, Shield, Headphones, CreditCard } from "lucide-react";
 import { OrganizationJsonLd } from "@/components/seo/json-ld";
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+  const t = await getTranslations("common");
+  return {
+    title: t("meta.homeTitle"),
+    description: t("meta.homeDescription"),
+  };
+}
 
 export default async function HomePage({
   params: { locale },
@@ -60,14 +69,10 @@ export default async function HomePage({
         <div className="container py-16 md:py-24">
           <div className="max-w-2xl">
             <h1 className="text-4xl md:text-6xl font-bold mb-4">
-              {locale === "en"
-                ? "Shop the Latest Trends"
-                : "Αγοράστε τις Τελευταίες Τάσεις"}
+              {t("heroTitle")}
             </h1>
             <p className="text-lg text-muted-foreground mb-8">
-              {locale === "en"
-                ? "Discover amazing deals on electronics, home goods, fashion and more. Free shipping on orders over €50."
-                : "Ανακαλύψτε εκπληκτικές προσφορές σε ηλεκτρονικά, είδη σπιτιού, μόδα και πολλά άλλα. Δωρεάν αποστολή σε παραγγελίες άνω των 50€."}
+              {t("heroDescription")}
             </p>
             <div className="flex gap-4">
               <Link href={`${prefix}/products`}>
@@ -93,28 +98,28 @@ export default async function HomePage({
               <Truck className="h-8 w-8 text-primary" />
               <div>
                 <p className="font-medium text-sm">{t("freeShipping")}</p>
-                <p className="text-xs text-muted-foreground">{locale === "en" ? "On orders over €50" : "Σε παραγγελίες άνω 50€"}</p>
+                <p className="text-xs text-muted-foreground">{t("freeShippingOver")}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Shield className="h-8 w-8 text-primary" />
               <div>
-                <p className="font-medium text-sm">{locale === "en" ? "Secure Payment" : "Ασφαλής Πληρωμή"}</p>
-                <p className="text-xs text-muted-foreground">{locale === "en" ? "SSL encrypted" : "Κρυπτογράφηση SSL"}</p>
+                <p className="font-medium text-sm">{t("securePayment")}</p>
+                <p className="text-xs text-muted-foreground">{t("sslEncrypted")}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Headphones className="h-8 w-8 text-primary" />
               <div>
-                <p className="font-medium text-sm">{locale === "en" ? "24/7 Support" : "Υποστήριξη 24/7"}</p>
-                <p className="text-xs text-muted-foreground">{locale === "en" ? "Always here to help" : "Πάντα εδώ για εσάς"}</p>
+                <p className="font-medium text-sm">{t("support247")}</p>
+                <p className="text-xs text-muted-foreground">{t("alwaysHereToHelp")}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <CreditCard className="h-8 w-8 text-primary" />
               <div>
-                <p className="font-medium text-sm">{locale === "en" ? "Easy Returns" : "Εύκολες Επιστροφές"}</p>
-                <p className="text-xs text-muted-foreground">{locale === "en" ? "30-day return policy" : "Επιστροφή εντός 30 ημερών"}</p>
+                <p className="font-medium text-sm">{t("easyReturns")}</p>
+                <p className="text-xs text-muted-foreground">{t("returnPolicy30")}</p>
               </div>
             </div>
           </div>

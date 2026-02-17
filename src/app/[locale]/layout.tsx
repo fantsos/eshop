@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import { Providers } from "@/components/layout/providers";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import "@/app/globals.css";
 
 const inter = Inter({ subsets: ["latin", "greek"] });
@@ -38,6 +39,9 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={inter.className}>
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+          <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+        )}
         <Providers locale={locale} messages={messages}>
           {children}
         </Providers>

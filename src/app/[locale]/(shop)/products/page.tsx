@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getTranslations } from "next-intl/server";
 import { ProductCard } from "@/components/product/product-card";
@@ -5,6 +6,11 @@ import { ProductFilters } from "@/components/product/product-filters";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+  const t = await getTranslations("common");
+  return { title: t("meta.productsTitle"), description: t("meta.productsDescription") };
+}
 
 const PAGE_SIZE = 12;
 

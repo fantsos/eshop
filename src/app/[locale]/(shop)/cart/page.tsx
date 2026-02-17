@@ -54,7 +54,7 @@ export default function CartPage() {
         <ShoppingBag className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
         <h1 className="text-2xl font-bold mb-2">{t("cart")}</h1>
         <p className="text-muted-foreground mb-4">
-          {locale === "en" ? "Your cart is empty" : "Το καλάθι σας είναι άδειο"}
+          {t("emptyCart")}
         </p>
         <Link href={`${prefix}/products`}>
           <Button>{t("continueShopping")}</Button>
@@ -105,7 +105,7 @@ export default function CartPage() {
         {/* Order Summary */}
         <Card>
           <CardHeader>
-            <CardTitle>{locale === "en" ? "Order Summary" : "Σύνοψη Παραγγελίας"}</CardTitle>
+            <CardTitle>{t("orderSummary")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex justify-between">

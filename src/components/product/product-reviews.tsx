@@ -31,7 +31,7 @@ export function ProductReviews({ productId, reviews }: { productId: string; revi
     const files = e.target.files;
     if (!files) return;
     if (images.length + files.length > 3) {
-      toast({ title: t("error"), description: "Max 3 images", variant: "destructive" });
+      toast({ title: t("error"), description: t("maxImages"), variant: "destructive" });
       return;
     }
     setUploading(true);
@@ -65,34 +65,34 @@ export function ProductReviews({ productId, reviews }: { productId: string; revi
   return (
     <div>
       {lightbox && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setLightbox(null)}>
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setLightbox(null)} role="dialog" aria-modal="true" aria-label={t("closeImage")}>
           <div className="relative max-w-3xl max-h-[90vh]">
-            <Image src={lightbox} alt="" width={800} height={600} className="object-contain max-h-[90vh] rounded" />
-            <button onClick={() => setLightbox(null)} className="absolute top-2 right-2 bg-black/50 text-white rounded-full p-1"><X className="h-5 w-5" /></button>
+            <Image src={lightbox} alt={t("reviews")} width={800} height={600} className="object-contain max-h-[90vh] rounded" />
+            <button onClick={() => setLightbox(null)} className="absolute top-2 right-2 bg-black/50 text-white rounded-full p-1" aria-label={t("closeImage")}><X className="h-5 w-5" /></button>
           </div>
         </div>
       )}
-      {session && !showForm && <Button onClick={() => setShowForm(true)} className="mb-6">Write a Review</Button>}
+      {session && !showForm && <Button onClick={() => setShowForm(true)} className="mb-6">{t("writeReview")}</Button>}
       {showForm && (
         <form onSubmit={handleSubmit} className="border rounded-lg p-4 mb-6 space-y-4">
           <div>
             <p className="font-medium mb-1">{t("rating")}</p>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map(s => (
-                <button key={s} type="button" onClick={() => setRating(s)}>
+                <button key={s} type="button" onClick={() => setRating(s)} aria-label={t("rateStars", { count: s })}>
                   <Star className={`h-6 w-6 ${s <= rating ? "fill-yellow-400 text-yellow-400" : "text-muted"}`} />
                 </button>
               ))}
             </div>
           </div>
-          <Input placeholder="Title (optional)" value={title} onChange={e => setTitle(e.target.value)} />
-          <Textarea placeholder="Your review..." value={comment} onChange={e => setComment(e.target.value)} />
+          <Input placeholder={t("titleOptional")} value={title} onChange={e => setTitle(e.target.value)} />
+          <Textarea placeholder={t("yourReview")} value={comment} onChange={e => setComment(e.target.value)} />
           <div>
             <input ref={fileRef} type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
             <div className="flex items-center gap-2 flex-wrap">
               {images.map((img, i) => (
                 <div key={i} className="relative h-16 w-16 rounded border overflow-hidden group">
-                  <Image src={img} alt="" fill className="object-cover" />
+                  <Image src={img} alt={t("reviews")} fill className="object-cover" />
                   <button type="button" onClick={() => setImages(prev => prev.filter((_, j) => j !== i))} className="absolute top-0 right-0 bg-black/50 text-white rounded-bl p-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                     <X className="h-3 w-3" />
                   </button>
@@ -104,7 +104,7 @@ export function ProductReviews({ productId, reviews }: { productId: string; revi
                 </button>
               )}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">{images.length}/3 images</p>
+            <p className="text-xs text-muted-foreground mt-1">{images.length}/3 {t("images")}</p>
           </div>
           <div className="flex gap-2">
             <Button type="submit" disabled={submitting}>{t("submit")}</Button>
@@ -123,7 +123,7 @@ export function ProductReviews({ productId, reviews }: { productId: string; revi
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-sm">{review.userName}</span>
-                  {review.isVerified && <Badge variant="success" className="text-xs">Verified</Badge>}
+                  {review.isVerified && <Badge variant="success" className="text-xs">{t("verified")}</Badge>}
                 </div>
                 <div className="flex items-center gap-1">
                   {Array.from({ length: 5 }).map((_, i) => (<Star key={i} className={`h-3 w-3 ${i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-muted"}`} />))}
@@ -137,7 +137,7 @@ export function ProductReviews({ productId, reviews }: { productId: string; revi
               <div className="flex gap-2 mt-2">
                 {review.images.map((img, i) => (
                   <button key={i} onClick={() => setLightbox(img)} className="relative h-16 w-16 rounded overflow-hidden border hover:opacity-80 transition-opacity">
-                    <Image src={img} alt="" fill className="object-cover" />
+                    <Image src={img} alt={t("reviews")} fill className="object-cover" />
                   </button>
                 ))}
               </div>

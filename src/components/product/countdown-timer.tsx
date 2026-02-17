@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 export function CountdownTimer({ endDate }: { endDate: string }) {
+  const t = useTranslations("common");
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [expired, setExpired] = useState(false);
 
@@ -22,7 +24,7 @@ export function CountdownTimer({ endDate }: { endDate: string }) {
     return () => clearInterval(interval);
   }, [endDate]);
 
-  if (expired) return <span className="text-red-600 font-medium text-sm">Sale ended</span>;
+  if (expired) return <span className="text-red-600 font-medium text-sm">{t("saleEnded")}</span>;
 
   const pad = (n: number) => String(n).padStart(2, "0");
 

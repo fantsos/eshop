@@ -29,14 +29,12 @@ export function Footer() {
               <span className="font-bold text-xl">E-Shop</span>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              {prefix === "/en"
-                ? "Your trusted online store for electronics, home & more."
-                : "Το αξιόπιστο ηλεκτρονικό σας κατάστημα για ηλεκτρονικά, σπίτι και πολλά άλλα."}
+              {t("storeDescription")}
             </p>
             <div className="flex gap-3">
-              <Button variant="ghost" size="icon"><Facebook className="h-4 w-4" /></Button>
-              <Button variant="ghost" size="icon"><Instagram className="h-4 w-4" /></Button>
-              <Button variant="ghost" size="icon"><Twitter className="h-4 w-4" /></Button>
+              <Button variant="ghost" size="icon" aria-label={t("visitFacebook")}><Facebook className="h-4 w-4" /></Button>
+              <Button variant="ghost" size="icon" aria-label={t("visitInstagram")}><Instagram className="h-4 w-4" /></Button>
+              <Button variant="ghost" size="icon" aria-label={t("visitTwitter")}><Twitter className="h-4 w-4" /></Button>
             </div>
           </div>
 
@@ -53,14 +51,14 @@ export function Footer() {
 
           {/* Customer Service */}
           <div>
-            <h3 className="font-semibold mb-4">{prefix === "/en" ? "Customer Service" : "Εξυπηρέτηση πελατών"}</h3>
+            <h3 className="font-semibold mb-4">{t("customerService")}</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link href={`${prefix}/about`} className="hover:text-foreground">{t("footer.about")}</Link></li>
               <li><Link href={`${prefix}/contact`} className="hover:text-foreground">{t("footer.contact")}</Link></li>
               <li><Link href={`${prefix}/faq`} className="hover:text-foreground">{t("footer.faq")}</Link></li>
               <li><Link href={`${prefix}/shipping-policy`} className="hover:text-foreground">{t("footer.shipping")}</Link></li>
               <li><Link href={`${prefix}/return-policy`} className="hover:text-foreground">{t("footer.returns")}</Link></li>
-              <li><Link href={`${prefix}/track-order`} className="hover:text-foreground">{prefix === "/en" ? "Track Order" : "Παρακολούθηση Παραγγελίας"}</Link></li>
+              <li><Link href={`${prefix}/track-order`} className="hover:text-foreground">{t("trackOrder")}</Link></li>
             </ul>
           </div>
 
@@ -68,9 +66,7 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">{t("footer.newsletter")}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              {prefix === "/en"
-                ? "Get the latest deals and updates straight to your inbox."
-                : "Λάβετε τις τελευταίες προσφορές και ενημερώσεις στο email σας."}
+              {t("newsletterDescription")}
             </p>
             <form className="flex gap-2" onSubmit={async (e) => {
               e.preventDefault();
@@ -82,8 +78,8 @@ export function Footer() {
               <Input placeholder={t("footer.enterEmail")} type="email" className="flex-1" value={nlEmail} onChange={e => setNlEmail(e.target.value)} required />
               <Button type="submit">{t("footer.subscribe")}</Button>
             </form>
-            {nlStatus === "ok" && <p className="text-xs text-green-600 mt-1">{prefix === "/en" ? "Subscribed!" : "Εγγραφήκατε!"}</p>}
-            {nlStatus === "err" && <p className="text-xs text-red-600 mt-1">{prefix === "/en" ? "Error. Try again." : "Σφάλμα. Δοκιμάστε ξανά."}</p>}
+            {nlStatus === "ok" && <p className="text-xs text-green-600 mt-1">{t("subscribed")}</p>}
+            {nlStatus === "err" && <p className="text-xs text-red-600 mt-1">{t("errorTryAgain")}</p>}
           </div>
         </div>
 

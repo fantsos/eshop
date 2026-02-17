@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { Card, CardContent } from "@/components/ui/card";
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+  const t = await getTranslations("common");
+  return { title: t("meta.faqTitle"), description: t("meta.faqDescription") };
+}
 
 const faqs = {
   en: [
@@ -21,12 +28,12 @@ const faqs = {
   ],
 };
 
-export default function FAQPage({ params: { locale } }: { params: { locale: string } }) {
-  const isEn = locale === "en";
-  const items = isEn ? faqs.en : faqs.el;
+export default async function FAQPage({ params: { locale } }: { params: { locale: string } }) {
+  const t = await getTranslations("common");
+  const items = locale === "en" ? faqs.en : faqs.el;
   return (
     <div className="container py-12 max-w-3xl">
-      <h1 className="text-3xl font-bold mb-6">{isEn ? "Frequently Asked Questions" : "Συχνές Ερωτήσεις"}</h1>
+      <h1 className="text-3xl font-bold mb-6">{t("faqTitle")}</h1>
       <div className="space-y-4">
         {items.map((faq, i) => (
           <Card key={i}><CardContent className="p-6">

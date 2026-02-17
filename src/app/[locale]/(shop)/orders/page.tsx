@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -7,6 +8,11 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Package } from "lucide-react";
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+  const t = await getTranslations("common");
+  return { title: t("meta.ordersTitle"), description: t("meta.ordersDescription") };
+}
 
 export default async function OrdersPage({ params: { locale } }: { params: { locale: string } }) {
   const session = await getServerSession(authOptions);
