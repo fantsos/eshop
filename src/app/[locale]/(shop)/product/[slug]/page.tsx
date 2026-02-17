@@ -20,8 +20,9 @@ export async function generateMetadata({ params }: { params: { slug: string; loc
   const baseUrl = process.env.NEXTAUTH_URL || "https://eshop.fantsos.gr";
   const name = params.locale === "en" ? product.nameEn : product.nameEl;
   const desc = params.locale === "en" ? product.descriptionEn : product.descriptionEl;
+  const plainDesc = desc?.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
   const metaTitle = (params.locale === "en" ? product.metaTitleEn : product.metaTitleEl) || name;
-  const metaDescription = (params.locale === "en" ? product.metaDescriptionEn : product.metaDescriptionEl) || desc?.slice(0, 160);
+  const metaDescription = (params.locale === "en" ? product.metaDescriptionEn : product.metaDescriptionEl) || plainDesc?.slice(0, 160);
   const canonical = product.canonicalUrl || `${baseUrl}/${params.locale}/product/${product.slug}`;
   const ogImage = product.images[0] ? (product.images[0].startsWith("http") ? product.images[0] : `${baseUrl}${product.images[0]}`) : null;
   return {
