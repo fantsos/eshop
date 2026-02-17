@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { ProductActions } from "@/components/product/product-actions";
+import { ImageGallery } from "@/components/product/image-gallery";
 import { ProductReviews } from "@/components/product/product-reviews";
 import { ProductCard } from "@/components/product/product-card";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +33,23 @@ export default async function ProductPage({ params: { slug, locale } }: { params
 
   const similarProducts = await prisma.product.findMany({ where: { isActive: true, categoryId: product.categoryId, id: { not: product.id } }, take: 4 });
 
+  // "Customers also bought" - products bought by people who bought this product
+  const alsoBought = await prisma.product.findMany({
+    where: {
+      isActive: true,
+      id: { not: product.id },
+      orderItems: {
+        some: {
+          order: {
+            items: { some: { productId: product.id } },
+          },
+        },
+      },
+    },
+    take: 4,
+    orderBy: { salesCount: "desc" },
+  });
+
   const name = locale === "en" ? product.nameEn : product.nameEl;
   const description = locale === "en" ? product.descriptionEn : product.descriptionEl;
   const isFlashSale = product.flashSalePrice && product.flashSaleEnd && product.flashSaleEnd > new Date();
@@ -52,19 +70,7 @@ export default async function ProductPage({ params: { slug, locale } }: { params
         { name, url: `${baseUrl}/product/${product.slug}` },
       ]} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-        <div className="space-y-4">
-          <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
-            {product.images[0] ? <Image src={product.images[0]} alt={name} fill className="object-cover" priority /> : <div className="flex items-center justify-center h-full text-muted-foreground">No image</div>}
-            {isFlashSale && <Badge className="absolute top-3 left-3 bg-orange-500 text-lg px-3 py-1">{t("flashSale")}</Badge>}
-          </div>
-          {product.images.length > 1 && (
-            <div className="grid grid-cols-4 gap-2">
-              {product.images.slice(1, 5).map((img, i) => (
-                <div key={i} className="relative aspect-square rounded-md overflow-hidden bg-muted"><Image src={img} alt={`${name} ${i + 2}`} fill className="object-cover" /></div>
-              ))}
-            </div>
-          )}
-        </div>
+        <ImageGallery images={product.images} name={name} flashSaleLabel={isFlashSale ? t("flashSale") : undefined} />
         <div>
           {product.brand && <p className="text-sm text-muted-foreground mb-1">{product.brand}</p>}
           <h1 className="text-3xl font-bold mb-2">{name}</h1>
@@ -109,6 +115,13 @@ export default async function ProductPage({ params: { slug, locale } }: { params
         <section>
           <h2 className="text-2xl font-bold mb-4">{t("similarProducts")}</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">{similarProducts.map(p => <ProductCard key={p.id} product={serializeProduct(p)} />)}</div>
+        </section>
+      )}
+
+      {alsoBought.length > 0 && (
+        <section className="mt-8">
+          <h2 className="text-2xl font-bold mb-4">{t("customersAlsoBought")}</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">{alsoBought.map(p => <ProductCard key={p.id} product={serializeProduct(p)} />)}</div>
         </section>
       )}
 

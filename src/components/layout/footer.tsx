@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
@@ -12,6 +13,8 @@ export function Footer() {
   const t = useTranslations("common");
   const pathname = usePathname();
   const prefix = pathname.startsWith("/en") ? "/en" : "";
+  const [nlEmail, setNlEmail] = useState("");
+  const [nlStatus, setNlStatus] = useState<"" | "ok" | "err">("");
 
   return (
     <footer className="bg-muted/50 border-t">
@@ -57,6 +60,7 @@ export function Footer() {
               <li><Link href={`${prefix}/faq`} className="hover:text-foreground">{t("footer.faq")}</Link></li>
               <li><Link href={`${prefix}/shipping-policy`} className="hover:text-foreground">{t("footer.shipping")}</Link></li>
               <li><Link href={`${prefix}/return-policy`} className="hover:text-foreground">{t("footer.returns")}</Link></li>
+              <li><Link href={`${prefix}/track-order`} className="hover:text-foreground">{prefix === "/en" ? "Track Order" : "Παρακολούθηση Παραγγελίας"}</Link></li>
             </ul>
           </div>
 
@@ -68,10 +72,18 @@ export function Footer() {
                 ? "Get the latest deals and updates straight to your inbox."
                 : "Λάβετε τις τελευταίες προσφορές και ενημερώσεις στο email σας."}
             </p>
-            <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
-              <Input placeholder={t("footer.enterEmail")} type="email" className="flex-1" />
+            <form className="flex gap-2" onSubmit={async (e) => {
+              e.preventDefault();
+              try {
+                const res = await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: nlEmail }) });
+                if (res.ok) { setNlStatus("ok"); setNlEmail(""); } else setNlStatus("err");
+              } catch { setNlStatus("err"); }
+            }}>
+              <Input placeholder={t("footer.enterEmail")} type="email" className="flex-1" value={nlEmail} onChange={e => setNlEmail(e.target.value)} required />
               <Button type="submit">{t("footer.subscribe")}</Button>
             </form>
+            {nlStatus === "ok" && <p className="text-xs text-green-600 mt-1">{prefix === "/en" ? "Subscribed!" : "Εγγραφήκατε!"}</p>}
+            {nlStatus === "err" && <p className="text-xs text-red-600 mt-1">{prefix === "/en" ? "Error. Try again." : "Σφάλμα. Δοκιμάστε ξανά."}</p>}
           </div>
         </div>
 

@@ -107,6 +107,27 @@ td { padding: 10px; border-bottom: 1px solid #e5e7eb; }
 </body>
 </html>`;
 
+  const { searchParams } = new URL(_req.url);
+  const format = searchParams.get("format");
+
+  if (format === "pdf") {
+    // Use Puppeteer-style approach: render HTML to PDF via browser print
+    // Since we can't use heavy PDF libs in serverless, return HTML with print styles
+    const pdfHtml = html.replace("</style>", `
+@media print {
+  body { margin: 0; }
+  @page { margin: 20mm; }
+}
+</style>
+<script>window.onload = function() { window.print(); }</script>`);
+    return new NextResponse(pdfHtml, {
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Disposition": `inline; filename="invoice-${order.orderNumber}.html"`,
+      },
+    });
+  }
+
   return new NextResponse(html, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",

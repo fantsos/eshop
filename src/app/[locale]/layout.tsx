@@ -41,6 +41,11 @@ export default async function LocaleLayout({
         <Providers locale={locale} messages={messages}>
           {children}
         </Providers>
+        <script dangerouslySetInnerHTML={{ __html: `
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+          }
+        ` }} />
       </body>
     </html>
   );

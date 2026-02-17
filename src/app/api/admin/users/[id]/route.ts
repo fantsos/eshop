@@ -15,7 +15,10 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   if (body.role && ["ADMIN", "CUSTOMER"].includes(body.role)) {
     data.role = body.role;
   }
+  if (typeof body.isBanned === "boolean") {
+    data.isBanned = body.isBanned;
+  }
 
   const user = await prisma.user.update({ where: { id: params.id }, data });
-  return NextResponse.json({ id: user.id, role: user.role });
+  return NextResponse.json({ id: user.id, role: user.role, isBanned: user.isBanned });
 }
