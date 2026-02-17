@@ -23,6 +23,7 @@ export async function generateMetadata({ params }: { params: { slug: string; loc
   const metaTitle = (params.locale === "en" ? product.metaTitleEn : product.metaTitleEl) || name;
   const metaDescription = (params.locale === "en" ? product.metaDescriptionEn : product.metaDescriptionEl) || desc?.slice(0, 160);
   const canonical = product.canonicalUrl || `${baseUrl}/${params.locale}/product/${product.slug}`;
+  const ogImage = product.images[0] ? (product.images[0].startsWith("http") ? product.images[0] : `${baseUrl}${product.images[0]}`) : null;
   return {
     title: metaTitle,
     description: metaDescription,
@@ -32,7 +33,7 @@ export async function generateMetadata({ params }: { params: { slug: string; loc
       description: metaDescription || undefined,
       url: canonical,
       siteName: "E-Shop",
-      images: product.images[0] ? [{ url: product.images[0], alt: product.imageAlt || name }] : [],
+      images: ogImage ? [{ url: ogImage, alt: product.imageAlt || name }] : [],
       locale: params.locale === "el" ? "el_GR" : "en_US",
       type: "website",
     },
@@ -40,7 +41,7 @@ export async function generateMetadata({ params }: { params: { slug: string; loc
       card: "summary_large_image",
       title: metaTitle,
       description: metaDescription || undefined,
-      images: product.images[0] ? [product.images[0]] : [],
+      images: ogImage ? [ogImage] : [],
     },
     alternates: {
       canonical,
