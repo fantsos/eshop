@@ -17,12 +17,38 @@ import { RecentlyViewed } from "@/components/product/recently-viewed";
 export async function generateMetadata({ params }: { params: { slug: string; locale: string } }): Promise<Metadata> {
   const product = await prisma.product.findUnique({ where: { slug: params.slug } });
   if (!product) return {};
+  const baseUrl = process.env.NEXTAUTH_URL || "https://eshop.fantsos.gr";
   const name = params.locale === "en" ? product.nameEn : product.nameEl;
   const desc = params.locale === "en" ? product.descriptionEn : product.descriptionEl;
+  const metaTitle = (params.locale === "en" ? product.metaTitleEn : product.metaTitleEl) || name;
+  const metaDescription = (params.locale === "en" ? product.metaDescriptionEn : product.metaDescriptionEl) || desc?.slice(0, 160);
+  const canonical = product.canonicalUrl || `${baseUrl}/${params.locale}/product/${product.slug}`;
   return {
-    title: name,
-    description: desc?.slice(0, 160),
-    openGraph: { title: name, description: desc?.slice(0, 160), images: product.images[0] ? [product.images[0]] : [] },
+    title: metaTitle,
+    description: metaDescription,
+    keywords: product.metaKeywords || undefined,
+    openGraph: {
+      title: metaTitle,
+      description: metaDescription || undefined,
+      url: canonical,
+      siteName: "E-Shop",
+      images: product.images[0] ? [{ url: product.images[0], alt: product.imageAlt || name }] : [],
+      locale: params.locale === "el" ? "el_GR" : "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: metaTitle,
+      description: metaDescription || undefined,
+      images: product.images[0] ? [product.images[0]] : [],
+    },
+    alternates: {
+      canonical,
+      languages: {
+        el: `${baseUrl}/el/product/${product.slug}`,
+        en: `${baseUrl}/en/product/${product.slug}`,
+      },
+    },
   };
 }
 
@@ -52,6 +78,9 @@ export default async function ProductPage({ params: { slug, locale } }: { params
 
   const name = locale === "en" ? product.nameEn : product.nameEl;
   const description = locale === "en" ? product.descriptionEn : product.descriptionEl;
+  const seoH1 = (locale === "en" ? product.seoH1En : product.seoH1El) || name;
+  const seoH2 = locale === "en" ? product.seoH2En : product.seoH2El;
+  const altText = product.imageAlt || name;
   const isFlashSale = product.flashSalePrice && product.flashSaleEnd && product.flashSaleEnd > new Date();
   const displayPrice = isFlashSale ? Number(product.flashSalePrice) : Number(product.price);
   const originalPrice = isFlashSale ? Number(product.price) : (product.compareAtPrice ? Number(product.compareAtPrice) : null);
@@ -63,17 +92,18 @@ export default async function ProductPage({ params: { slug, locale } }: { params
 
   return (
     <div className="container py-8">
-      <ProductJsonLd product={{ ...product, price: displayPrice, flashSalePrice: isFlashSale ? displayPrice : null, rating: Number(product.avgRating), reviewCount: product.reviewCount }} />
+      <ProductJsonLd locale={locale} product={{ ...product, price: displayPrice, flashSalePrice: isFlashSale ? displayPrice : null, rating: Number(product.avgRating), reviewCount: product.reviewCount, url: `${baseUrl}/${locale}/product/${product.slug}`, reviews: product.reviews.map(r => ({ rating: r.rating, userName: r.user.name || "Anonymous", comment: r.comment, createdAt: r.createdAt.toISOString() })) }} />
       <BreadcrumbJsonLd items={[
         { name: locale === "en" ? "Home" : "Αρχική", url: baseUrl },
         ...(product.category ? [{ name: categoryName || "", url: `${baseUrl}/category/${product.category.slug}` }] : []),
         { name, url: `${baseUrl}/product/${product.slug}` },
       ]} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-        <ImageGallery images={product.images} name={name} flashSaleLabel={isFlashSale ? t("flashSale") : undefined} />
+        <ImageGallery images={product.images} name={name} imageAlt={altText} flashSaleLabel={isFlashSale ? t("flashSale") : undefined} />
         <div>
           {product.brand && <p className="text-sm text-muted-foreground mb-1">{product.brand}</p>}
-          <h1 className="text-3xl font-bold mb-2">{name}</h1>
+          <h1 className="text-3xl font-bold mb-2">{seoH1}</h1>
+          {seoH2 && <h2 className="text-lg text-muted-foreground mb-2">{seoH2}</h2>}
           <div className="flex items-center gap-2 mb-4">
             <div className="flex">{Array.from({ length: 5 }).map((_, i) => (<Star key={i} className={`h-5 w-5 ${i < Math.round(Number(product.avgRating)) ? "fill-yellow-400 text-yellow-400" : "text-muted"}`} />))}</div>
             <span className="text-sm text-muted-foreground">({product.reviewCount} {t("reviews")})</span>
