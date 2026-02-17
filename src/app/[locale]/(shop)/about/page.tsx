@@ -1,10 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { Card, CardContent } from "@/components/ui/card";
+import { buildMetadata } from "@/lib/seo";
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const t = await getTranslations("common");
-  return { title: t("meta.aboutTitle"), description: t("meta.aboutDescription") };
+  return buildMetadata({ title: t("meta.aboutTitle"), description: t("meta.aboutDescription"), locale, path: "/about" });
 }
 
 export default async function AboutPage({ params: { locale } }: { params: { locale: string } }) {

@@ -6,10 +6,11 @@ import { ProductFilters } from "@/components/product/product-filters";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { buildMetadata } from "@/lib/seo";
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const t = await getTranslations("common");
-  return { title: t("meta.productsTitle"), description: t("meta.productsDescription") };
+  return buildMetadata({ title: t("meta.productsTitle"), description: t("meta.productsDescription"), locale, path: "/products" });
 }
 
 const PAGE_SIZE = 12;

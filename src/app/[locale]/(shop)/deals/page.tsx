@@ -2,10 +2,11 @@ import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/product/product-card";
+import { buildMetadata } from "@/lib/seo";
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const t = await getTranslations("common");
-  return { title: t("meta.dealsTitle"), description: t("meta.dealsDescription") };
+  return buildMetadata({ title: t("meta.dealsTitle"), description: t("meta.dealsDescription"), locale, path: "/deals" });
 }
 
 function serializeProduct(p: any) {

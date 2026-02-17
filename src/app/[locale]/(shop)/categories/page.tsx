@@ -4,10 +4,11 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
+import { buildMetadata } from "@/lib/seo";
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const t = await getTranslations("common");
-  return { title: t("meta.categoriesTitle"), description: t("meta.categoriesDescription") };
+  return buildMetadata({ title: t("meta.categoriesTitle"), description: t("meta.categoriesDescription"), locale, path: "/categories" });
 }
 
 export default async function CategoriesPage({ params: { locale } }: { params: { locale: string } }) {

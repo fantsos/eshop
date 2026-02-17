@@ -9,9 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Package } from "lucide-react";
 
+import { buildMetadata } from "@/lib/seo";
+
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const t = await getTranslations("common");
-  return { title: t("meta.ordersTitle"), description: t("meta.ordersDescription") };
+  return buildMetadata({ title: t("meta.ordersTitle"), description: t("meta.ordersDescription"), locale, path: "/orders" });
 }
 
 export default async function OrdersPage({ params: { locale } }: { params: { locale: string } }) {

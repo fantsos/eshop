@@ -10,9 +10,11 @@ import { Separator } from "@/components/ui/separator";
 import { CheckCircle, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export async function generateMetadata({ params: { locale } }: { params: { locale: string; orderNumber: string } }): Promise<Metadata> {
+import { buildMetadata } from "@/lib/seo";
+
+export async function generateMetadata({ params: { locale, orderNumber } }: { params: { locale: string; orderNumber: string } }): Promise<Metadata> {
   const t = await getTranslations("common");
-  return { title: t("meta.ordersTitle"), description: t("meta.ordersDescription") };
+  return buildMetadata({ title: t("meta.ordersTitle"), description: t("meta.ordersDescription"), locale, path: `/orders/${orderNumber}` });
 }
 
 export default async function OrderDetailPage({ params: { locale, orderNumber }, searchParams }: { params: { locale: string; orderNumber: string }; searchParams: { success?: string } }) {

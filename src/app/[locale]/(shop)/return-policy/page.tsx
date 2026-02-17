@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Card, CardContent } from "@/components/ui/card";
+import { buildMetadata } from "@/lib/seo";
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const t = await getTranslations("common");
-  return { title: t("meta.returnTitle"), description: t("meta.returnDescription") };
+  return buildMetadata({ title: t("meta.returnTitle"), description: t("meta.returnDescription"), locale, path: "/return-policy" });
 }
 
 export default function ReturnPolicyPage({ params: { locale } }: { params: { locale: string } }) {

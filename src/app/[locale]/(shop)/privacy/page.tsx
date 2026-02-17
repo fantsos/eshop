@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Card, CardContent } from "@/components/ui/card";
+import { buildMetadata } from "@/lib/seo";
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const t = await getTranslations("common");
-  return { title: t("meta.privacyTitle"), description: t("meta.privacyDescription") };
+  return buildMetadata({ title: t("meta.privacyTitle"), description: t("meta.privacyDescription"), locale, path: "/privacy" });
 }
 
 export default function PrivacyPage({ params: { locale } }: { params: { locale: string } }) {
