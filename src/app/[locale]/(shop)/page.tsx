@@ -10,9 +10,33 @@ import { OrganizationJsonLd } from "@/components/seo/json-ld";
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const t = await getTranslations("common");
+  const baseUrl = process.env.NEXTAUTH_URL || "https://eshop.fantsos.gr";
+  const title = t("meta.homeTitle");
+  const description = t("meta.homeDescription");
   return {
-    title: t("meta.homeTitle"),
-    description: t("meta.homeDescription"),
+    title: { absolute: title },
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `${baseUrl}/${locale}`,
+      siteName: "E-Shop",
+      locale: locale === "el" ? "el_GR" : "en_US",
+      type: "website",
+      images: [{ url: `${baseUrl}/logo.png`, alt: "E-Shop" }],
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+    },
+    alternates: {
+      canonical: `${baseUrl}/${locale}`,
+      languages: {
+        el: `${baseUrl}/el`,
+        en: `${baseUrl}/en`,
+      },
+    },
   };
 }
 
