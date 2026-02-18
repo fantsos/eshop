@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { ProductCard } from "@/components/product/product-card";
-import { Button } from "@/components/ui/button";
 import { ArrowRight, Truck, Shield, Headphones, CreditCard } from "lucide-react";
 import { OrganizationJsonLd } from "@/components/seo/json-ld";
 
@@ -77,32 +76,6 @@ export default async function HomePage({
   return (
     <div>
       <OrganizationJsonLd />
-      {/* Hero Banner */}
-      <section className="bg-gradient-to-r from-primary/10 via-primary/5 to-background">
-        <div className="container py-16 md:py-24">
-          <div className="max-w-2xl">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4">
-              {t("heroTitle")}
-            </h1>
-            <p className="text-lg text-muted-foreground mb-8">
-              {t("heroDescription")}
-            </p>
-            <div className="flex gap-4">
-              <Link href={`${prefix}/products`}>
-                <Button size="lg">
-                  {t("products")} <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href={`${prefix}/deals`}>
-                <Button size="lg" variant="outline">
-                  {t("deals")}
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Features */}
       <section className="border-y bg-muted/30">
         <div className="container py-6">
