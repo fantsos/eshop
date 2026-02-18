@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import Image from "next/image";
 import { ProductCard } from "@/components/product/product-card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Truck, Shield, Headphones, CreditCard } from "lucide-react";
@@ -48,20 +47,10 @@ export default async function HomePage({
   const t = await getTranslations("common");
   const prefix = locale === "en" ? "/en" : "";
 
-  const [featuredProducts, newProducts, categories, flashSaleProducts] = await Promise.all([
-    prisma.product.findMany({
-      where: { isActive: true, isFeatured: true },
-      orderBy: { salesCount: "desc" },
-      take: 8,
-    }),
+  const [newProducts, flashSaleProducts] = await Promise.all([
     prisma.product.findMany({
       where: { isActive: true },
       orderBy: { createdAt: "desc" },
-      take: 8,
-    }),
-    prisma.category.findMany({
-      where: { isActive: true, parentId: null },
-      orderBy: { order: "asc" },
       take: 8,
     }),
     prisma.product.findMany({
@@ -150,28 +139,18 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* Categories */}
-      {categories.length > 0 && (
+      {/* New Arrivals */}
+      {newProducts.length > 0 && (
         <section className="container py-12">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">{t("categories")}</h2>
-            <Link href={`${prefix}/categories`} className="text-primary hover:underline text-sm">
+            <h2 className="text-2xl font-bold">{t("newArrivals")}</h2>
+            <Link href={`${prefix}/products?sort=newest`} className="text-primary hover:underline text-sm">
               {t("viewAll")} <ArrowRight className="inline h-4 w-4" />
             </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {categories.map((cat) => (
-              <Link key={cat.id} href={`${prefix}/category/${cat.slug}`}>
-                <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-muted group">
-                  {cat.image && (
-                    <Image src={cat.image} alt={locale === "en" ? cat.nameEn : cat.nameEl} fill className="object-cover group-hover:scale-105 transition-transform" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-3 left-3 text-white">
-                    <h3 className="font-semibold">{locale === "en" ? cat.nameEn : cat.nameEl}</h3>
-                  </div>
-                </div>
-              </Link>
+            {newProducts.map((product) => (
+              <ProductCard key={product.id} product={serializeProduct(product)} />
             ))}
           </div>
         </section>
@@ -196,39 +175,6 @@ export default async function HomePage({
         </section>
       )}
 
-      {/* Featured Products */}
-      {featuredProducts.length > 0 && (
-        <section className="container py-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">{t("featured")}</h2>
-            <Link href={`${prefix}/products?featured=true`} className="text-primary hover:underline text-sm">
-              {t("viewAll")} <ArrowRight className="inline h-4 w-4" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={serializeProduct(product)} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* New Arrivals */}
-      {newProducts.length > 0 && (
-        <section className="container py-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">{t("newArrivals")}</h2>
-            <Link href={`${prefix}/products?sort=newest`} className="text-primary hover:underline text-sm">
-              {t("viewAll")} <ArrowRight className="inline h-4 w-4" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {newProducts.map((product) => (
-              <ProductCard key={product.id} product={serializeProduct(product)} />
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   );
 }
