@@ -9,7 +9,7 @@ services:
       - "3871:3871"
     environment:
       - DATABASE_URL=postgresql://eshop:eshop_secret_2024@eshop-db:5432/eshop?schema=public
-      - NEXTAUTH_URL=https://eshop.fantsos.gr
+      - NEXTAUTH_URL=https://fantsos.gr
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-change-me-in-production}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
@@ -22,7 +22,7 @@ services:
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USER=${SMTP_USER:-}
       - SMTP_PASS=${SMTP_PASS:-}
-      - SMTP_FROM=${SMTP_FROM:-noreply@eshop.fantsos.gr}
+      - SMTP_FROM=${SMTP_FROM:-noreply@fantsos.gr}
       - NODE_ENV=production
     volumes:
       - eshop-uploads:/app/public/uploads

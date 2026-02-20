@@ -110,7 +110,7 @@ export function ProductForm({ categories, product }: ProductFormProps) {
           <p className="text-xs text-muted-foreground mb-2">Google Preview</p>
           <div className="space-y-1">
             <p className="text-blue-600 text-lg truncate">{form.metaTitleEn || form.nameEn || "Page Title"}</p>
-            <p className="text-green-700 text-sm truncate">{form.canonicalUrl || `eshop.fantsos.gr/product/...`}</p>
+            <p className="text-green-700 text-sm truncate">{form.canonicalUrl || `fantsos.gr/product/...`}</p>
             <p className="text-sm text-muted-foreground line-clamp-2">{form.metaDescriptionEn || form.descriptionEn?.slice(0, 160) || "Product description will appear here..."}</p>
           </div>
         </div>

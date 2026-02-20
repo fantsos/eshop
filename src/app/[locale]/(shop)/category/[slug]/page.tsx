@@ -10,7 +10,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 export async function generateMetadata({ params: { locale, slug } }: { params: { locale: string; slug: string } }): Promise<Metadata> {
   const category = await prisma.category.findUnique({ where: { slug } });
   if (!category) return {};
-  const baseUrl = process.env.NEXTAUTH_URL || "https://eshop.fantsos.gr";
+  const baseUrl = process.env.NEXTAUTH_URL || "https://fantsos.gr";
   const name = locale === "en" ? category.nameEn : category.nameEl;
   const metaTitle = (locale === "en" ? category.metaTitleEn : category.metaTitleEl) || name;
   const metaDescription = (locale === "en" ? category.metaDescriptionEn : category.metaDescriptionEl) || `${name} - E-Shop`;

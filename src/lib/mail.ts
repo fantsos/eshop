@@ -23,7 +23,7 @@ export async function sendMail({ to, subject, html }: SendMailOptions) {
   }
 
   await transporter.sendMail({
-    from: process.env.SMTP_FROM || "noreply@eshop.fantsos.gr",
+    from: process.env.SMTP_FROM || "noreply@fantsos.gr",
     to,
     subject,
     html,

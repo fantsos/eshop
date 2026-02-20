@@ -8,7 +8,7 @@ import { OrganizationJsonLd } from "@/components/seo/json-ld";
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const t = await getTranslations("common");
-  const baseUrl = process.env.NEXTAUTH_URL || "https://eshop.fantsos.gr";
+  const baseUrl = process.env.NEXTAUTH_URL || "https://fantsos.gr";
   const title = t("meta.homeTitle");
   const description = t("meta.homeDescription");
   return {

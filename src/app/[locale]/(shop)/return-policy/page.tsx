@@ -25,7 +25,7 @@ export default function ReturnPolicyPage({ params: { locale } }: { params: { loc
         </ul>
         <h2 className="text-xl font-semibold">{isEn ? "How to Return" : "Πώς να επιστρέψετε"}</h2>
         <ol className="list-decimal pl-6 space-y-1">
-          <li>{isEn ? "Contact us at info@eshop.fantsos.gr with your order number" : "Επικοινωνήστε μαζί μας στο info@eshop.fantsos.gr με τον αριθμό παραγγελίας"}</li>
+          <li>{isEn ? "Contact us at info@fantsos.gr with your order number" : "Επικοινωνήστε μαζί μας στο info@fantsos.gr με τον αριθμό παραγγελίας"}</li>
           <li>{isEn ? "We'll send you a return authorization and shipping label" : "Θα σας στείλουμε εξουσιοδότηση επιστροφής και ετικέτα αποστολής"}</li>
           <li>{isEn ? "Pack the item securely and ship it back to us" : "Συσκευάστε το προϊόν με ασφάλεια και στείλτε το πίσω"}</li>
           <li>{isEn ? "Once we receive and inspect the item, we'll process your refund" : "Μόλις παραλάβουμε και ελέγξουμε το προϊόν, θα επεξεργαστούμε την επιστροφή χρημάτων"}</li>

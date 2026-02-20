@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-const BASE_URL = process.env.NEXTAUTH_URL || "https://eshop.fantsos.gr";
+const BASE_URL = process.env.NEXTAUTH_URL || "https://fantsos.gr";
 
 export function buildMetadata({
   title,

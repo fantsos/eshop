@@ -101,7 +101,7 @@ td { padding: 10px; border-bottom: 1px solid #e5e7eb; }
 </table>
 
 <div class="footer">
-  <p>E-Shop &mdash; eshop.fantsos.gr</p>
+  <p>E-Shop &mdash; fantsos.gr</p>
   <p>Thank you for your purchase!</p>
 </div>
 </body>

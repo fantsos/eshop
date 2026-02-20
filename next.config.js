@@ -11,7 +11,7 @@ const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
-      { protocol: 'https', hostname: 'eshop.fantsos.gr' },
+      { protocol: 'https', hostname: 'fantsos.gr' },
       { protocol: 'https', hostname: 'netconnect.gr' },
     ],
   },

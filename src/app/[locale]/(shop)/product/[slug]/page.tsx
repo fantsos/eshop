@@ -17,7 +17,7 @@ import { RecentlyViewed } from "@/components/product/recently-viewed";
 export async function generateMetadata({ params }: { params: { slug: string; locale: string } }): Promise<Metadata> {
   const product = await prisma.product.findUnique({ where: { slug: params.slug } });
   if (!product) return {};
-  const baseUrl = process.env.NEXTAUTH_URL || "https://eshop.fantsos.gr";
+  const baseUrl = process.env.NEXTAUTH_URL || "https://fantsos.gr";
   const name = params.locale === "en" ? product.nameEn : product.nameEl;
   const desc = params.locale === "en" ? product.descriptionEn : product.descriptionEl;
   const plainDesc = desc?.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
@@ -89,7 +89,7 @@ export default async function ProductPage({ params: { slug, locale } }: { params
 
   const serializeProduct = (p: any) => ({ ...p, price: Number(p.price), compareAtPrice: p.compareAtPrice ? Number(p.compareAtPrice) : null, avgRating: Number(p.avgRating), flashSalePrice: p.flashSalePrice ? Number(p.flashSalePrice) : null, flashSaleEnd: p.flashSaleEnd ? p.flashSaleEnd.toISOString() : null, weight: p.weight ? Number(p.weight) : null });
 
-  const baseUrl = process.env.NEXTAUTH_URL || "https://eshop.fantsos.gr";
+  const baseUrl = process.env.NEXTAUTH_URL || "https://fantsos.gr";
   const categoryName = locale === "en" ? product.category?.nameEn : product.category?.nameEl;
 
   return (

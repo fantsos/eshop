@@ -65,8 +65,8 @@ export function OrganizationJsonLd() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "E-Shop",
-    url: process.env.NEXTAUTH_URL || "https://eshop.fantsos.gr",
-    logo: `${process.env.NEXTAUTH_URL || "https://eshop.fantsos.gr"}/logo.png`,
+    url: process.env.NEXTAUTH_URL || "https://fantsos.gr",
+    logo: `${process.env.NEXTAUTH_URL || "https://fantsos.gr"}/logo.png`,
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "customer service",
