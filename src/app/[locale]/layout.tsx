@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import { Providers } from "@/components/layout/providers";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
+import Script from "next/script";
 import "@/app/globals.css";
 
 const inter = Inter({ subsets: ["latin", "greek"] });
@@ -45,6 +46,12 @@ export default async function LocaleLayout({
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
         )}
+        <Script
+          async
+          src="https://umami.fantsos.gr/script.js"
+          data-website-id="9da54dd5-90de-449c-afdf-1bbb2eaf90aa"
+          strategy="afterInteractive"
+        />
         <Providers locale={locale} messages={messages}>
           {children}
         </Providers>
