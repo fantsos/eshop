@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   const sort = searchParams.get("sort") || "newest";
   const featured = searchParams.get("featured") === "true";
 
-  const where: any = { isActive: true };
+  const where: any = { isActive: true, stock: { gt: 0 } };
   if (search) {
     where.OR = [
       { nameEl: { contains: search, mode: "insensitive" } },

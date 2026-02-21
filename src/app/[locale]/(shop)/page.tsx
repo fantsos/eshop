@@ -48,7 +48,7 @@ export default async function HomePage({
 
   const [newProducts, flashSaleProducts] = await Promise.all([
     prisma.product.findMany({
-      where: { isActive: true },
+      where: { isActive: true, stock: { gt: 0 } },
       orderBy: { createdAt: "desc" },
       take: 8,
     }),

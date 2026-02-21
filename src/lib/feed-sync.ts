@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 import { XMLParser } from "fast-xml-parser";
+import fs from "fs";
+import path from "path";
+import crypto from "crypto";
 
 interface SyncResult {
   created: number;
@@ -11,6 +14,35 @@ interface SyncResult {
 
 function getNestedValue(obj: any, path: string): any {
   return path.split(".").reduce((acc, key) => acc?.[key], obj);
+}
+
+async function downloadImage(imageUrl: string): Promise<string | null> {
+  if (!imageUrl || !imageUrl.startsWith("http")) return null;
+
+  try {
+    // Generate a stable filename from the URL hash
+    const hash = crypto.createHash("md5").update(imageUrl).digest("hex");
+    const ext = imageUrl.split("?")[0].split(".").pop()?.toLowerCase() || "jpg";
+    const safeExt = ["jpg", "jpeg", "png", "webp", "gif"].includes(ext) ? ext : "jpg";
+    const filename = `${hash}.${safeExt}`;
+    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    const filePath = path.join(uploadDir, filename);
+    const publicPath = `/uploads/${filename}`;
+
+    // Skip if already downloaded
+    if (fs.existsSync(filePath)) return publicPath;
+
+    fs.mkdirSync(uploadDir, { recursive: true });
+
+    const response = await fetch(imageUrl, { signal: AbortSignal.timeout(15000) });
+    if (!response.ok) return null;
+
+    const buffer = Buffer.from(await response.arrayBuffer());
+    fs.writeFileSync(filePath, buffer);
+    return publicPath;
+  } catch {
+    return null;
+  }
 }
 
 export async function syncFeed(feedId: string): Promise<SyncResult> {
@@ -92,8 +124,9 @@ export async function syncFeed(feedId: string): Promise<SyncResult> {
         const descriptionEn = getValue("descriptionEn") || null;
         const brand = getValue("brand") || null;
         const weight = getValue("weight") ? parseFloat(getValue("weight")!) : null;
-        const imageUrl = getValue("image") || null;
-        const images = imageUrl ? [imageUrl] : [];
+        const rawImageUrl = getValue("image") || null;
+        const localImage = rawImageUrl ? await downloadImage(rawImageUrl) : null;
+        const images = (localImage || rawImageUrl) ? [localImage || rawImageUrl!] : [];
 
         // Category lookup
         let categoryId = feed.defaultCategoryId || null;

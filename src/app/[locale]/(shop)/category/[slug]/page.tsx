@@ -60,8 +60,8 @@ export default async function CategoryPage({ params: { locale, slug }, searchPar
   else if (sort === "popular") orderBy = { salesCount: "desc" };
 
   const [products, total] = await Promise.all([
-    prisma.product.findMany({ where: { isActive: true, categoryId: { in: categoryIds } }, orderBy, skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE }),
-    prisma.product.count({ where: { isActive: true, categoryId: { in: categoryIds } } }),
+    prisma.product.findMany({ where: { isActive: true, stock: { gt: 0 }, categoryId: { in: categoryIds } }, orderBy, skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE }),
+    prisma.product.count({ where: { isActive: true, stock: { gt: 0 }, categoryId: { in: categoryIds } } }),
   ]);
 
   const totalPages = Math.ceil(total / PAGE_SIZE);

@@ -59,7 +59,7 @@ export default async function ProductPage({ params: { slug, locale } }: { params
   const product = await prisma.product.findUnique({ where: { slug }, include: { category: true, variants: true, reviews: { include: { user: { select: { name: true, avatar: true } } }, orderBy: { createdAt: "desc" }, take: 10 } } });
   if (!product || !product.isActive) notFound();
 
-  const similarProducts = await prisma.product.findMany({ where: { isActive: true, categoryId: product.categoryId, id: { not: product.id } }, take: 4 });
+  const similarProducts = await prisma.product.findMany({ where: { isActive: true, stock: { gt: 0 }, categoryId: product.categoryId, id: { not: product.id } }, take: 4 });
 
   // "Customers also bought" - products bought by people who bought this product
   const alsoBought = await prisma.product.findMany({

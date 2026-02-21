@@ -27,7 +27,7 @@ export default async function ProductsPage({ params: { locale }, searchParams }:
   const brand = searchParams.brand || "";
   const featured = searchParams.featured === "true";
 
-  const where: any = { isActive: true };
+  const where: any = { isActive: true, stock: { gt: 0 } };
   if (search) { where.OR = [{ nameEl: { contains: search, mode: "insensitive" } }, { nameEn: { contains: search, mode: "insensitive" } }, { brand: { contains: search, mode: "insensitive" } }]; }
   if (category) where.categoryId = category;
   if (brand) where.brand = { contains: brand, mode: "insensitive" };
