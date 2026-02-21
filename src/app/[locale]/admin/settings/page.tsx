@@ -11,7 +11,7 @@ import { Loader2 } from "lucide-react";
 
 const DEFAULTS = {
   storeName: "E-Shop",
-  storeEmail: "info@fantsos.gr",
+  storeEmail: "fantsos@gmail.com",
   taxRate: 24,
   freeShippingThreshold: 50,
   defaultShippingRate: 4.99,

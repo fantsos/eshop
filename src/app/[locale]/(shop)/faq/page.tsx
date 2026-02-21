@@ -16,7 +16,7 @@ const faqs = {
     { q: "Can I return a product?", a: "Yes, you can return products within 14 days of delivery. Products must be unused and in original packaging." },
     { q: "How can I track my order?", a: "Once your order is shipped, you'll receive a tracking number via email. You can also check your order status in your account." },
     { q: "Do you ship internationally?", a: "Currently we ship within Greece and Cyprus. International shipping will be available soon." },
-    { q: "How can I contact customer support?", a: "You can reach us via email at info@fantsos.gr or through our contact form." },
+    { q: "How can I contact customer support?", a: "You can reach us via email at fantsos@gmail.com or through our contact form." },
   ],
   el: [
     { q: "Πώς μπορώ να κάνω παραγγελία;", a: "Περιηγηθείτε στα προϊόντα μας, προσθέστε αντικείμενα στο καλάθι σας και προχωρήστε στην ολοκλήρωση. Μπορείτε να αγοράσετε ως επισκέπτης ή να δημιουργήσετε λογαριασμό." },
@@ -25,7 +25,7 @@ const faqs = {
     { q: "Μπορώ να επιστρέψω ένα προϊόν;", a: "Ναι, μπορείτε να επιστρέψετε προϊόντα εντός 14 ημερών από την παράδοση. Τα προϊόντα πρέπει να είναι αχρησιμοποίητα στην αρχική συσκευασία." },
     { q: "Πώς μπορώ να παρακολουθήσω την παραγγελία μου;", a: "Μόλις αποσταλεί η παραγγελία σας, θα λάβετε αριθμό παρακολούθησης μέσω email. Μπορείτε επίσης να ελέγξετε την κατάσταση στον λογαριασμό σας." },
     { q: "Στέλνετε στο εξωτερικό;", a: "Αυτή τη στιγμή στέλνουμε εντός Ελλάδας και Κύπρου. Η διεθνής αποστολή θα είναι σύντομα διαθέσιμη." },
-    { q: "Πώς μπορώ να επικοινωνήσω;", a: "Μπορείτε να μας βρείτε στο info@fantsos.gr ή μέσω της φόρμας επικοινωνίας." },
+    { q: "Πώς μπορώ να επικοινωνήσω;", a: "Μπορείτε να μας βρείτε στο fantsos@gmail.com ή μέσω της φόρμας επικοινωνίας." },
   ],
 };
 

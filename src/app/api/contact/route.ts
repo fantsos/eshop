@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     }
 
     await sendMail({
-      to: process.env.ADMIN_EMAIL || "info@fantsos.gr",
+      to: process.env.ADMIN_EMAIL || "fantsos@gmail.com",
       subject: `Contact Form: ${subject}`,
       html: `
         <h2>New Contact Form Submission</h2>

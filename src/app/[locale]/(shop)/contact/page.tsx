@@ -49,7 +49,7 @@ export default function ContactPage() {
           </CardContent>
         </Card>
         <div className="space-y-6">
-          <Card><CardContent className="p-6 flex items-start gap-4"><Mail className="h-6 w-6 text-primary mt-1" /><div><h3 className="font-semibold">Email</h3><p className="text-sm text-muted-foreground">info@fantsos.gr</p></div></CardContent></Card>
+          <Card><CardContent className="p-6 flex items-start gap-4"><Mail className="h-6 w-6 text-primary mt-1" /><div><h3 className="font-semibold">Email</h3><p className="text-sm text-muted-foreground">fantsos@gmail.com</p></div></CardContent></Card>
           <Card><CardContent className="p-6 flex items-start gap-4"><Phone className="h-6 w-6 text-primary mt-1" /><div><h3 className="font-semibold">{t("phone")}</h3><p className="text-sm text-muted-foreground">+30 210 1234567</p></div></CardContent></Card>
           <Card><CardContent className="p-6 flex items-start gap-4"><MapPin className="h-6 w-6 text-primary mt-1" /><div><h3 className="font-semibold">{t("address")}</h3><p className="text-sm text-muted-foreground">{t("athens")}</p></div></CardContent></Card>
         </div>

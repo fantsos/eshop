@@ -4,9 +4,9 @@ import { buildMetadata } from "@/lib/seo";
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const t = await getTranslations("common");
-  return { ...buildMetadata({ title: t("meta.ordersTitle"), description: t("meta.ordersDescription"), locale, path: "/orders" }), robots: { index: false, follow: false } };
+  return { ...buildMetadata({ title: t("meta.checkoutTitle"), description: t("meta.checkoutDescription"), locale, path: "/checkout" }), robots: { index: false, follow: false } };
 }
 
-export default function OrdersLayout({ children }: { children: React.ReactNode }) {
+export default function CheckoutLayout({ children }: { children: React.ReactNode }) {
   return children;
 }

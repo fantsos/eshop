@@ -22,7 +22,7 @@ export async function GET(req: Request) {
   const rows = lowStockProducts.map(p => `<tr><td style="padding:8px;border-bottom:1px solid #eee;">${p.nameEn}</td><td style="padding:8px;border-bottom:1px solid #eee;">${p.sku}</td><td style="padding:8px;border-bottom:1px solid #eee;color:${p.stock === 0 ? 'red' : 'orange'};font-weight:bold;">${p.stock}</td></tr>`).join("");
 
   await sendMail({
-    to: process.env.ADMIN_EMAIL || "info@fantsos.gr",
+    to: process.env.ADMIN_EMAIL || "fantsos@gmail.com",
     subject: `Low Stock Alert: ${lowStockProducts.length} products`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">

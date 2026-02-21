@@ -24,7 +24,7 @@ export default function PrivacyPage({ params: { locale } }: { params: { locale: 
           <li>{isEn ? "Send promotional emails (with your consent)" : "Αποστολή προωθητικών email (με τη συγκατάθεσή σας)"}</li>
         </ul>
         <h2 className="text-xl font-semibold">{isEn ? "Your Rights" : "Τα δικαιώματά σας"}</h2>
-        <p>{isEn ? "Under GDPR, you have the right to access, correct, delete, or export your personal data. Contact us at info@fantsos.gr to exercise these rights." : "Σύμφωνα με τον GDPR, έχετε δικαίωμα πρόσβασης, διόρθωσης, διαγραφής ή εξαγωγής των δεδομένων σας. Επικοινωνήστε στο info@fantsos.gr."}</p>
+        <p>{isEn ? "Under GDPR, you have the right to access, correct, delete, or export your personal data. Contact us at fantsos@gmail.com to exercise these rights." : "Σύμφωνα με τον GDPR, έχετε δικαίωμα πρόσβασης, διόρθωσης, διαγραφής ή εξαγωγής των δεδομένων σας. Επικοινωνήστε στο fantsos@gmail.com."}</p>
         <h2 className="text-xl font-semibold">Cookies</h2>
         <p>{isEn ? "We use essential cookies for site functionality and authentication. No third-party tracking cookies are used without your consent." : "Χρησιμοποιούμε απαραίτητα cookies για τη λειτουργικότητα και την αυθεντικοποίηση. Δεν χρησιμοποιούνται cookies τρίτων χωρίς τη συγκατάθεσή σας."}</p>
       </CardContent></Card>
