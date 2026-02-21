@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   themeColor: "#f97316",
   viewport: "width=device-width, initial-scale=1, maximum-scale=5",
+  verification: {
+    google: "rMaN7NYISwpfCAfgJzQi0Y6nWhge9WvmHaVixvmncnI",
+  },
 };
 
 const locales = ["el", "en"];
