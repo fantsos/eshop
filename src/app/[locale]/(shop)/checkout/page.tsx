@@ -23,7 +23,7 @@ const PayPalButton = lazy(() => import("@/components/checkout/paypal-button"));
 type Step = "address" | "shipping" | "payment" | "review";
 
 const COURIER_METHODS = [
-  { id: "ELTA",   name: "ΕΛΤΑ Courier",         logo: "/couriers/elta.png",    price: 4 },
+  { id: "ELTA",   name: "ΕΛΤΑ Courier",         logo: "/couriers/elta.jpg",    price: 4 },
   { id: "ACS",    name: "ACS Courier",           logo: "/couriers/acs.png",     price: 4 },
   { id: "GENIKI", name: "Γενική Ταχυδρομική",   logo: "/couriers/geniki.svg",  price: 4 },
   { id: "BOXNOW", name: "BoxNow (Locker)",       logo: "/couriers/boxnow.svg",  price: 2 },
