@@ -28,7 +28,7 @@ services:
       - CRON_SECRET=${CRON_SECRET}
       - NODE_ENV=production
     volumes:
-      - eshop-uploads:/app/public/uploads
+      - ./public/uploads:/app/public/uploads
       - ./public/products:/app/public/products
     depends_on:
       eshop-db:
@@ -58,7 +58,6 @@ services:
 
 volumes:
   eshop-pgdata:
-  eshop-uploads:
 
 networks:
   eshop-network:
